@@ -1,0 +1,57 @@
+\documentclass[a4paper,12pt,twoside]{report}
+\setlength{\headheight}{15.95134pt}
+\addtolength{\topmargin}{-0.95134pt}
+% VARIABLES
+
+\newcommand{\titulo}{} % Título completo
+\newcommand{\titred}{} % Título corto
+\newcommand{\periodo}{\today} % Año academico
+\newcommand{\institucion}{Universidad de Santiago de Compostela} % Universidad
+\newcommand{\carrera}{Ingeniería Informática} % Grado
+\newcommand{\asignatura}{} % Asignatura
+\newcommand{\autor}{Jorge Lojo Abal} % Autor del documento
+%\newcommand{\autorii}{}
+\newcommand{\autores}{\autor} % Autores completos
+
+
+% PAQUETES, ENTORNOS Y ESTILO DEL DOCUMENTO
+\input{0_configuracion/0_paquetes.tex}
+\input{0_configuracion/1_estilo.tex}
+
+% Metadatos
+\hypersetup{ 
+    pdfauthor={\autor} % Autor del trabajo
+    pdftitle={\titulo} % Título del trabajo
+    pdfsubject={} % Memoria del proyecto
+    pdfkeywords{} % Palabras clave del documento
+    pdflang={español} % Idioma del documento
+    pdfcreator={\autor} % Creador del documento
+}
+
+\begin{document}
+
+    % PORTADA
+
+    \maketitle
+
+    % ÍNDICE
+
+    \begingroup
+        \hypersetup{linkcolor=black}
+
+        \tableofcontents
+    \endgroup
+    
+    \newpage
+    
+    % INTRODUCCION
+
+
+    % CONCLUSIONE
+
+    % BIBLIOGRAFIA
+
+
+
+% Fin del documento
+\end{document}
