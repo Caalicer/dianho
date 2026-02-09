@@ -12,6 +12,13 @@ Proporciona funciones para la manipulación de un Árbol AVL.
 
 #include "definiciones.h"
 #include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define PREORDER 0
+#define INORDER 1
+#define POSTORDER 2
 
 /**
  * @typedef key
@@ -35,9 +42,7 @@ typedef struct AVLTree AVLTree;
  * @brief Función auxiliar para extraer la clave del elemento a insertar.
  * @return Clave para insertar en el AVLTree.
  **/
-key _clave_elem(element* data) {
-    return data->lexeme;
-}
+static inline key clave_elem(element* data) { return data->lexeme; }
 
 /**
  * @brief Crea un nuevo AVLTree vacío.
@@ -93,25 +98,14 @@ size_t avl_size(const AVLTree* tree);
 int avl_height(const AVLTree* tree);
 
 /**
- * @brief Recorre el Árbol AVL en inorden y ejecuta una función callback
- *        en cada nodo.
- * @param tree Puntero al AVLTree a recorrer.
+ * @brief Recorre el Árbol AVL en preorder, inorder o postorden y ejecuta una
+ *        función callback en cada elemento almacenado en el árbol.
+ *
+ * @param tree  Puntero al AVLTree a recorrer.
+ * @param order Orden del recorrido:
+ *        - `PREORDER`  (0): Nodo → Izquierda → Derecha
+ *        - `INORDER`   (1): Izquierda → Nodo → Derecha
+ *        - `POSTORDER` (2): Izquierda → Derecha → Nodo
  * @param callback Función que se ejecutará en cada nodo del árbol.
  **/
-void avl_traverse_inorder(const AVLTree* tree, void (*callback)(element));
-
-/**
- * @brief Recorre el Árbol AVL en preorden y ejecuta una función callback en
- *cada nodo.
- * @param tree Puntero al AVLTree a recorrer.
- * @param callback Función que se ejecutará en cada nodo del árbol.
- **/
-void avl_traverse_preorder(const AVLTree* tree, void (*callback)(element));
-
-/**
- * @brief Recorre el Árbol AVL en postorden y ejecuta una función callback en
- *cada nodo.
- * @param tree Puntero al AVLTree a recorrer.
- * @param callback Función que se ejecutará en cada nodo del árbol.
- **/
-void avl_traverse_postorder(const AVLTree* tree, void (*callback)(element));
+void avl_traverse(AVLTree* tree, int order, void (*callback)(element));

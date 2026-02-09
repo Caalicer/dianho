@@ -94,7 +94,7 @@ $(BIN_DIR)/$(NAME)_debug: $(OBJS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@$(MKDIR_P) $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(DFLAGS) -c $< -o $@
 
 #---<ejecucion>---
 
