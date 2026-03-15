@@ -11,10 +11,39 @@
 
 #include "definiciones.h"
 
-void tabla_simbolos_init();
+/**
+ * @brief Inicializa la Tabla de Símbolos.
+ *
+ * Se cargan inicialmente los keywords y se reserva la memoria necesaria.
+ *
+ * En caso de ya existir una Tabla de Símbolos previa, no hace nada.
+ *
+ */
+void symtab_init();
 
-void tabla_simobolos_terminate();
+/**
+ * @brief Destruye la Tabla de Símbolos.
+ *
+ * Libera toda la memoria asociad a la Tabla de Símbolos, borrando su contenido.
+ *
+ * En caso de no existir una Tabla de Símbolos previa, no hace nada.
+ *
+ */
+void symtab_terminate();
 
-lexeme* intern_lexeme(lexeme* lexeme);
+/**
+ * @brief Interna un lexema en la Tabla de Símbolos. Busca el elemento en la
+ * Tabla de Símbolos. Si existe, devuelve un puntero al elemento existente. Si
+ * no existe, lo inserta y devuelve un puntero al nuevo elemento.
+ *
+ * @param lexeme Lexema a internar.
+ * @return lexeme* Puntero al elemento internado en la Tabla de Símbolos.
+ * @retval NULL Hubo un error en la inserción.
+ */
+lexeme* symtab_intern(lexeme* lexeme);
 
-void tabla_simbolos_print();
+/**
+ * @brief Imprime el contenido completo de la Tabla de Símbolos.
+ * 
+ */
+void symtab_print();

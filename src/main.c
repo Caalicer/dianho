@@ -41,39 +41,43 @@ int map [256];
 
 int main(int argc, char** argv) {
 
-    memset(map, -1, sizeof(map));
-    map ['a'] = letra_a;
-    map ['b'] = letra_b;
+    // memset(map, -1, sizeof(map));
+    // map ['a'] = letra_a;
+    // map ['b'] = letra_b;
 
-    DFA *dfa = dfa_init(s_count, a_count, 255, accepting_bitmap, map, tabla_transiciones);
+    // DFA *dfa = dfa_init(s_count, a_count, 255, accepting_bitmap, map, tabla_transiciones);
 
-    char input_char;
+    // char input_char;
 
-    while(1) {
-        printf("\nIntroduce letra:");
-        scanf(" %c", &input_char); // Leer un carácter de entrada
+    // while(1) {
+    //     printf("\nIntroduce letra:");
+    //     scanf(" %c", &input_char); // Leer un carácter de entrada
 
-        switch (dfa_step(dfa, input_char)) {
-            case ACCEPTING:
-                printf("Estado actual: Aceptación\n");
-                break;
-            case REJECTING:
-                printf("Estado actual: Rechazo\n");
-                break;
-            case ERROR:
-                printf("Entrada no válida. Intente de nuevo.\n");
-                break;
-        }
+    //     switch (dfa_step(dfa, input_char)) {
+    //         case ACCEPTING:
+    //             printf("Estado actual: Aceptación\n");
+    //             break;
+    //         case REJECTING:
+    //             printf("Estado actual: Rechazo\n");
+    //             break;
+    //         case ERROR:
+    //             printf("Entrada no válida. Intente de nuevo.\n");
+    //             break;
+    //     }
 
-        printf("Estado actual del DFA: %d\n", dfa_current_state(dfa));
+    //     printf("Estado actual del DFA: %d\n", dfa_current_state(dfa));
 
-    }
+    // }
     // if (argc != 2) {
     //     fprintf(stderr, "Uso: %s <input_file>\n", argv[0]);
     //     return 1;
     // }
 
-    // tabla_simbolos_init();
+    symtab_init();
+
+    symtab_print();
+
+    symtab_terminate();
 
     // sintactic_analysis(argv[1]);
 
@@ -81,6 +85,5 @@ int main(int argc, char** argv) {
 
     // tabla_simobolos_terminate();
 
-    dfa_destroy(dfa);
     return 0;
 }

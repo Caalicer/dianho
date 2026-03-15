@@ -1,17 +1,27 @@
-# pragma once
+#pragma once
 
 typedef struct {
     int lexical_token;
-    char *lexeme;
+    char* lexeme;
 } lexeme;
 
-#define ID 300
-#define IMPORT 301
+typedef enum Token {
 
+    ID = 300,
+
+    // Keywords presentes en `regression.d`
+    IMPORT,
+    DOUBLE,
+    VOID,
+    INT,
+    WHILE,
+    FOREACH,
+    CAST
+} Token;
 
 // KEYWORDS
-// #define ABSTRACT 
-// #define ALIAS 
+// #define ABSTRACT
+// #define ALIAS
 // #define ALIGN
 // #define ASM
 // #define ASSERT
