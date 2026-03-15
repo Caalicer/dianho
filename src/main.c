@@ -6,6 +6,7 @@
 #include <string.h>
 #include "sintactico.h"
 #include "dfa.h"
+#include "errores.h"
 
 
 // static void _print_element(element data) {
@@ -73,17 +74,24 @@ int main(int argc, char** argv) {
     //     return 1;
     // }
 
-    symtab_init();
+    // symtab_init();
 
-    symtab_print();
+    // symtab_print();
 
-    symtab_terminate();
+    // symtab_terminate();
 
     // sintactic_analysis(argv[1]);
 
     // tabla_simbolos_print();
 
     // tabla_simobolos_terminate();
+
+    emit_error(42, ERROR_2);
+
+    emit_error(43, ERROR_3);
+
+    emit_error(44, ERROR_COUNT);
+
 
     return 0;
 }
