@@ -4,10 +4,15 @@
  * @file avl.h
  * @brief Definición de las funciones públicas para un Árbol AVL.
  *
-Proporciona funciones para la manipulación de un Árbol AVL.
-
-- Manipulación del árbol
-
+ * Proporciona funciones para la manipulación de un Árbol AVL.
+ *
+ * - Manipulación del árbol
+ *
+ * >[!Warning] elemcmp
+ * > Esta función debe compararse como strcmp y devolver un entero de la forma:
+ * > - 0, si e1 y e2 son iguales.
+ * >     - Valor *negativo* si e1 es menor que e2.
+ * >     - Valor *positivo* si e1 es mayor que e2.
  **/
 
 #include "definiciones.h"
@@ -39,16 +44,13 @@ typedef lexeme element;
 typedef struct AVLTree AVLTree;
 
 /**
- * @brief Función auxiliar para extraer la clave del elemento a insertar.
- * @return Clave para insertar en el AVLTree.
- **/
-static inline key clave_elem(element* data) { return data->lexeme; }
-
-/**
  * @brief Crea un nuevo AVLTree vacío.
+ * @param elemcmp Función de comparación de elementos
+ * @param free_element Función callback para liberar la memoria del elemento
  * @return Puntero al AVLTree. NULL si falla la asignación de memoria.
  **/
-AVLTree* avl_create();
+AVLTree* avl_create(int (*elemcmp)(element *e1, element *e2),
+                    void (*free_element)(element *e));
 
 /**
  * @brief Destruye un AVLTree y libera toda la memoria asociada.
@@ -59,11 +61,11 @@ void avl_destroy(AVLTree* tree);
 /**
  * @brief Inserta un nodo con una clave en el Árbol AVL.
  * @param tree Puntero al AVLTree donde se insertará la clave.
- * @param data Nodo a insertar en el árbol.
- * @retval  0 La inserción fue exitosa.
- * @retval -1 Hubo un error en la inserción.
+ * @param data Puntero al elemento a insertar en el árbol.
+ * @retval  e Puntero al elemento insertado.
+ * @retval  NULL Error en la inserción.
  */
-int avl_insert(AVLTree* tree, element data);
+element* avl_insert(AVLTree* tree, element *data);
 
 /**
  * @brief Elimina un nodo con la clave dada del Árbol AVL.
@@ -78,10 +80,10 @@ int avl_remove(AVLTree* tree, element data);
  * @brief Busca una clave en el Árbol AVL.
  * @param tree Puntero al AVLTree en el que se realizará la búsqueda.
  * @param data Nodo a buscar en el árbol.
- * @retval 1 La clave está en el árbol.
- * @retval 0 No se encontró la clave.
+ * @retval e Puntero al elemento encontrado.
+ * @retval NULL No se encontró la clave.
  **/
-int avl_search(const AVLTree* tree, element data);
+element* avl_search(const AVLTree* tree, element *data);
 
 /**
  * @brief Obtiene el número de nodos en el Árbol AVL.
