@@ -22,6 +22,8 @@ Hay que gestionar bien la función de "devolver" del sistema de entrada. Debemos
 
 Necesitamos dos copias en total. Una es la que tenemos cargada en los buffers del sistema de entrada. La segunda es la almacenada en la tabla de símbolos. Para cualquier otro caso, podríamos usar punteros a estas copias según en la fase del proceso en la que estuviéramos. Por ejemplo, para imprimirlo por pantalla al final usaríamos un puntero a la copia almacenada en la tabla de símbolos. Podría existir una tercera copia si se vuelve a leer el mismo lexema posteriormente, y es necesario comprobar que ya está cargado en la tabla de símbolos.
 
+En el caso de querer comparar la copia existente en los buffers con una en la tabla de símbolos requeriría implementar una función de comparación de strings que tenga en cuenta la estructura de doble buffer. Para usar funciones nativas como strcpy requeriría una tercera copia temporal del lexema para poder compararlas.
+
 ---
 
 ¿Qué tipos de errores eres capaz de detectar y gestionar durante la fase de análisis léxico?

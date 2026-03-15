@@ -1,6 +1,6 @@
 # Práctica 1 Analizador léxico
 
-Construir un analizador léxico que devuelva los componentes léxicos que aparecen en el programa concurrentSum.go, codificado en el lenguaje Go.
+Construir un analizador léxico que devuelva los componentes léxicos que aparecen en el programa regression.d, codificado en el lenguaje de programación D.
 
 ## Orientación
 
@@ -12,21 +12,21 @@ Comentaremos brevemente una posible implementación para estos ficheros:
 
 ### FICHERO DE DEFINICIONES
 
-Puede contener las definiciones de los componentes léxicos del lenguaje Go utilizados en concurrentSum.go. Es suficiente con identificar cada componente léxico con un número entero, que el analizador léxico devolverá cada vez que sea invocado. Además, podemos definir aquí la tabla de símbolos como un vector de estructuras que permite almacenar cada uno de los componentes léxicos, y el lexema correspondiente en aquellos casos en los que sea necesario.
+Puede contener las definiciones de los componentes léxicos del lenguaje D utilizados en regresssion.d. Es suficiente con identificar cada componente léxico con un número entero, que el analizador léxico devolverá cada vez que sea invocado. Además, podemos definir aquí la tabla de símbolos como un vector de estructuras que permite almacenar cada uno de los componentes léxicos, y el lexema correspondiente en aquellos casos en los que sea necesario.
 
-Un ejemplo de definición de componentes léxicos de Go, en C, podría ser la siguiente:
+Un ejemplo de definición de componentes léxicos de D, en C, podría ser la siguiente:
 
 ```C
-#define PACKAGE 273
+#define IMPORT 273
 
-#define IMPORT 274
+#define WHILE 274
 
                ...    
 ```
 
 ### FICHERO CON EL ANALIZADOR LÉXICO
 
-Puede contener la función más relevante de esta práctica, cuya ejecución supone devolver el siguiente componente léxico del código fuente cada vez que es invocada. Esta función a su vez puede invocar al sistema de entrada para obtener el siguiente carácter del código fuente. Cada vez que obtiene un carácter ejecuta una estructura de autómatas que le permite identificar a qué patrón responde el flujo de entrada, y así devolver su componente léxico correspondiente. Por ejemplo, una vez que encuentra un paréntesis después de leer los caracteres ‘P’,’r’,’i’,’n’,’t’,’l’,’n’, el analizador debe comprobar que el lexema ‘Println' no es una palabra reservada de Go, y después ha de incorporarlo a la tabla de símbolos como un identificador. Para terminar, ha de devolver el componente léxico IDENTIFICADOR, y guardar de alguna forma la cadena ‘Println'.
+Puede contener la función más relevante de esta práctica, cuya ejecución supone devolver el siguiente componente léxico del código fuente cada vez que es invocada. Esta función a su vez puede invocar al sistema de entrada para obtener el siguiente carácter del código fuente. Cada vez que obtiene un carácter ejecuta una estructura de autómatas que le permite identificar a qué patrón responde el flujo de entrada, y así devolver su componente léxico correspondiente. Por ejemplo, una vez que encuentra un paréntesis después de leer los caracteres ‘w’,’h’,’i’,’l’,’e’,’c’,’t’,’r’, el analizador debe comprobar que el lexema ‘whilectr' no es una palabra reservada de D, y después ha de incorporarlo a la tabla de símbolos como un identificador. Para terminar, ha de devolver el componente léxico IDENTIFICADOR, y guardar de alguna forma la cadena ‘whilectr'.
 
 Una posible estructura muy sencilla para realizar el analizador podría ser la siguiente:
 
@@ -45,7 +45,7 @@ int seguinte_comp_lexico()
 
                 if (c == ' ' || c == '\t');         
 
-                else if (isalpha(c) || c == '_')
+                else if (isapha(c) || c == '_')
 
                      ...    
 
@@ -70,4 +70,8 @@ Fundamentalmente ha de contener dos funciones imprescindibles: 1) una función d
 
 ### FICHERO CON EL SISTEMA DE ENTRADA
 
-Desde aquí se accede al fichero concurrentSum.go para analizarlo como un flujo de caracteres. El sistema de entrada ha de devolver el siguiente carácter del código fuente cada vez que es invocado, y ha de permitir devolver caracteres al flujo de entrada si es necesario. Adicionalmente, parece más eficiente que sea el sistema de entrada el que gestione la entrega de lexemas.
+Desde aquí se accede al fichero regression.d para analizarlo como un flujo de caracteres. El sistema de entrada ha de devolver el siguiente carácter del código fuente cada vez que es invocado, y ha de permitir devolver caracteres al flujo de entrada si es necesario. Podemos, por tanto, considerar para ello el diseño de dos funciones.
+
+Algunas funciones en C que pueden resultar útiles para el desarrollo de esta práctica:
+
+`isalpha()`, `isdigit()`, `isalnum()`, `atoi()`, `atof()`, `getc()`, `strcpy()`

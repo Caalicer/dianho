@@ -2,7 +2,7 @@
 
 /**
  * @file avl.h
- * @brief Definición de la API para un Árbol AVL.
+ * @brief Definición de las funciones públicas para un Árbol AVL.
  *
 Proporciona funciones para la manipulación de un Árbol AVL.
 

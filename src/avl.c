@@ -128,7 +128,7 @@ static void _node_adapter(void* nodo, void* ctx);
 static void _traverse_node(node* root, int order, void (*callback)(node*));
 
 /**
- * @brief
+ * @brief 
  *
  * @param tree Puntero al AVLTree donde
  * @param n
@@ -145,9 +145,9 @@ static node* _search(const AVLTree* tree, element data, node** last);
 
 static node* _find_min(node* n);
 
-/******************************
- * Implementación API pública *
- ******************************/
+/*************************************
+ * Implementación funciones públicas *
+ *************************************/
 
 AVLTree* avl_create() {
 

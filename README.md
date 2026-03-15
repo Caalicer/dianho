@@ -1,6 +1,6 @@
 # Analizador léxico de GO
 
-Construir un analizador léxico que devuelva los componentes léxicos que aparecen en el programa `concurrentSum.go`, codificado en el lenguaje Go.
+Construir un analizador léxico que devuelva los componentes léxicos que aparecen en el programa `regression.d`, codificado en el lenguaje D.
 
 ## Estructura del proyecto
 
@@ -16,4 +16,4 @@ Construir un analizador léxico que devuelva los componentes léxicos que aparec
     - README.md
     - TODO.md
     - enunciado.md
-    - currentSum.go
+    - regression.d
