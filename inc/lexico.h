@@ -10,17 +10,20 @@
 
 
 /**
- * @brief Inicializa el analizador léxico con el archivo de entrada.
- *
- * @param filename El nombre del archivo a analizar.
- * @return 0 si la inicialización fue exitosa, -1 en caso de error.
+ * @brief Inicializa el analizador léxico: automatas y estructura interna.
  */
-int init_lexical_analyzer(const char* filename);
+void lexer_init();
 
+
+/**
+ * @brief Termina el analizador léxico y libera los recursos utilizados.
+ */
+void lexer_terminate();
 
 /**
  * @brief Obtiene el siguiente token del análisis léxico.
  *
- * @return Un puntero a un lexema que representa el siguiente token, o NULL si no hay más tokens.
+ * @return Lexema que representa el siguiente token
+ * @retval Lexema con comp_lexico == EOF si llega al final del archivo
  */
 lexeme* next_token();

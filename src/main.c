@@ -1,46 +1,73 @@
-
-#include "avl.h"
-#include "definiciones.h"
-#include "tabla_simbolos.h"
 #include <stdio.h>
-#include <string.h>
+#include "entrada.h"
+#include "tabla_simbolos.h"
 #include "sintactico.h"
-#include "dfa.h"
-#include "errores.h"
+#include "lexico.h"
 
 
 // static void _print_element(element data) {
 //     printf("%d ", data.lexical_token);
 // }
 
-typedef enum {
-    s_inicial,
-    s_1,
-    s_2,
-    s_aceptacion,
-    s_count
-} estados;
+// typedef enum {
+//     s_inicial,
+//     s_1,
+//     s_2,
+//     s_aceptacion,
+//     s_count
+// } estados;
 
-typedef enum {
-    letra_a,
-    letra_b,
-    a_count
-} alfabeto;
+// typedef enum {
+//     letra_a,
+//     letra_b,
+//     a_count
+// } alfabeto;
 
-static const int tabla_transiciones[s_count][a_count] ={
-                      // a    b
-    [s_inicial]    = {s_1, s_inicial},
-    [s_1]          = {s_1, s_2},
-    [s_2]          = {s_1, s_aceptacion},
-    [s_aceptacion] = {s_aceptacion, s_aceptacion}
-};
+// static const int tabla_transiciones[s_count][a_count] ={
+//                       // a    b
+//     [s_inicial]    = {s_1, s_inicial},
+//     [s_1]          = {s_1, s_2},
+//     [s_2]          = {s_1, s_aceptacion},
+//     [s_aceptacion] = {s_aceptacion, s_aceptacion}
+// };
 
-uint64_t accepting_bitmap = (1ULL << s_aceptacion);
+// uint64_t accepting_bitmap = (1ULL << s_aceptacion);
 
-int map [256];
+// int map [256];
 
 
 int main(int argc, char** argv) {
+
+    if (argc != 2) {
+        fprintf(stderr, "Uso: %s <input_file>\n", argv[0]);
+        return 1;
+    }
+
+    // Inicialización
+    printf("Preparando el sistema...\n");
+    input_init(argv[1]);
+    symtab_init();
+    lexer_init();
+
+    printf("\nEstado inicial de la tabla de símbolos:\n");
+    symtab_print();
+
+    // Análisis
+
+    printf("\n---- Inicio Análisis ----\n");
+    
+    parse();
+
+    printf("\n---- Fin Análisis ----\n");
+
+    printf("\nEstado final de la tabla de símbolos:\n");
+    symtab_print();
+
+    // Finalizacion
+    lexer_terminate();
+    symtab_terminate();
+    input_terminate();
+
 
     // memset(map, -1, sizeof(map));
     // map ['a'] = letra_a;
@@ -86,11 +113,11 @@ int main(int argc, char** argv) {
 
     // tabla_simobolos_terminate();
 
-    emit_error(42, ERROR_2);
+    // emit_error(42, ERROR_2);
 
-    emit_error(43, ERROR_3);
+    // emit_error(43, ERROR_3);
 
-    emit_error(44, ERROR_COUNT);
+    // emit_error(44, ERROR_COUNT);
 
 
     return 0;
