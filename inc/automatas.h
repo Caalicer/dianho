@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @file automatas.h
  * @brief Implementación de los autómatas usados por el lexer:
@@ -19,6 +20,9 @@
  *  - n: nombre del símbolo.
  */
 
+#include <ctype.h>
+#include <stdint.h>
+
 /**********************
  *    ALFANUMÉRICO    *
  **********************/
@@ -36,6 +40,18 @@ static const short int alfnum_trans[anq_COUNT_STATES][ana_COUNT_SYMBOLS] = {
     // letra, digito
     [anq_init] = {anq_ACCEPT, -1},
     [anq_ACCEPT] = {anq_ACCEPT, anq_ACCEPT}};
+
+static uint64_t alfanum_accpeting_bitmap = (1ULL << anq_ACCEPT);
+
+void alfanumerico_mapper(short int map[256]){
+    
+    for (int i = 0; i < 256; i++) {
+        if (isalpha(i)) map[i] = ana_letra;
+        else if (isdigit(i)) map[i] = ana_digito;
+        else map[i] = -1; // Símbolo no mapeado
+    }
+    map['_'] = ana__;
+}
 
 /*****************
  *    NUMÉRICO    *
@@ -86,6 +102,22 @@ static const short int numerico_trans[nq_COUNT_STATES][na_COUNT_SYMBOLS] = {
     [nq_DDOT]   = {-1,        -1,        -1,        -1,     -1,        nq_DDDOT,  -1,     -1,     -1,        -1},
     [nq_DDDOT]  = {-1,        -1,        -1,        -1,     -1,        -1,        -1,     -1,     -1,        -1}};
 
+static uint64_t numerico_accpeting_bitmap =
+    (1ULL << nq_INTB)   | (1ULL << nq_BIN)    | (1ULL << nq_INT)    |
+    (1ULL << nq_FLOATD) | (1ULL << nq_FLOATM) | (1ULL << nq_FLOATE) |
+    (1ULL << nq_DOT)    | (1ULL << nq_DDOT)   | (1ULL << nq_DDDOT);
+
+void numerico_mapper(short int map[256]){
+
+    for(int i = 0; i<256; i++){
+        if(isdigit(i)) map[i] = na_num;
+        else map[i] = -1; 
+    }
+    map['0'] = na_0; map['_'] = na__; map['.'] = na_dot;
+    map['1'] = na_1; map['e'] = na_e; map['+'] = na_PLUS;
+    map['b'] = na_b; map['E'] = na_E; map['-'] = na_MINUS; 
+}
+
 /********************
  *    COMENTARIOS    *
  *********************/
@@ -133,6 +165,19 @@ static const short int comentarios_trans[cq_COUNT_STATES][ca_COUNT_SYMBOLS] = {
     [cq_end]       = {cq_pop,       cq_recursive, cq_recursive,  cq_recursive, cq_recursive, cq_recursive},
     [cq_pop]       = {cq_recursive, cq_recursive, cq_recursive,  cq_recursive, cq_recursive, cq_recursive}};
 
+static uint64_t comentarios_accpeting_bitmap = 
+    (1ULL << cq_LINE) | (1ULL << cq_BLOCK) | (1ULL << cq_D) | (1ULL << cq_DE);
+
+void comentarios_mapper(short int map[256]){
+
+    for(int i = 0; i<256; i++){
+        map[i] = ca_OTHER; 
+    }
+    map['/']  = ca_SLASH;   map['*'] = ca_STAR;
+    map['+'] = ca_PLUS;     map['='] = ca_E;
+    map['\n'] = ca_NEWLINE; 
+}
+
 /****************
  *    STRINGS    *
  *****************/
@@ -158,6 +203,17 @@ static const short int strings_trans[sq_COUNT_STATES][sa_COUNT_SYMBOLS] = {
     [sq_body]   = {sq_ACCEPT, sq_escape, sq_body},
     [sq_escape] = {sq_body,   sq_body,   sq_body},
     [sq_ACCEPT] = {-1,        -1,        -1}};
+
+static uint64_t strings_accpeting_bitmap = (1ULL << sq_ACCEPT);
+
+void strings_mapper(short int map[256]){
+    
+    for(int i = 0; i<256; i++){
+        map[i] = sa_OTHER; 
+    }
+    map['"'] = sa_QUOTE;
+    map['\\'] = sa_BACKSLASH;
+}
 
 /*****************
  *    ATÓMICOS    *
@@ -223,3 +279,19 @@ static const short int atomic_trans[aq_COUNT_STATES][aa_COUNT_SYMBOLS] = {
     [aq_GGGE] = {-1,   -1,    -1,    -1,      -1,    -1},
     [aq_GG]   = {-1,   -1,    -1,    aq_GGE,  -1,    aq_GGG},
     [aq_GGG]  = {-1,   -1,    -1,    aq_GGGE, -1,    -1}};
+
+static uint64_t atomicos_accpeting_bitmap =  (1ULL << aq_S)  |
+    (1ULL << aq_SE)  | (1ULL << aq_P)    |   (1ULL << aq_PP) | (1ULL << aq_PE) |
+    (1ULL << aq_M)   | (1ULL << aq_MM)   |   (1ULL << aq_ME) | (1ULL << aq_E)  |
+    (1ULL << aq_EE)  | (1ULL << aq_EG)   |   (1ULL << aq_L)  | (1ULL << aq_LE) |
+    (1ULL << aq_LLE) | (1ULL << aq_LL)   |   (1ULL << aq_G)  | (1ULL << aq_GE) |
+    (1ULL << aq_GGE) | (1ULL << aq_GGGE) |   (1ULL << aq_GG) | (1ULL << aq_GGG);
+
+void atomic_mapper(short int map[256]){
+
+    for(int i = 0; i<256; i++){
+        map[i] = -1; 
+    }
+    map['*'] = aa_STAR;  map['+'] = aa_PLUS;  map['-'] = aa_MINUS;
+    map['='] = aa_EQUAL; map['<'] = aa_LOWER; map['>'] = aa_GREATER;
+}
