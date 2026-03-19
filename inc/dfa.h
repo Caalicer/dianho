@@ -72,9 +72,11 @@ typedef int state;      // Por legibilidad.
  * el estado actual es de aceptación.
  */
 typedef enum {
-    ACCEPTING, /**< Estado de aceptación */
-    REJECTING, /**< Estado válido pero no de aceptación */
-    ERROR      /**< Error en el último procesamiento. No se transicionó */
+    ACCEPTING,     /**< Estado de aceptación */
+    REJECTING,     /**< Estado válido pero no de aceptación */
+    NO_TRANSITION, /**< No existe transición definida para la entrada */
+    NO_MAPPING,    /**< Símbolo de entrada no mapeado al alfabeto del DFA */
+    ERROR          /**< Error en el último procesamiento. No se transicionó */
 } dfa_status;
 
 /**
@@ -87,15 +89,15 @@ typedef enum {
  * @param transition_table Tabla de transición del DFA.
  * @param mapping_table Tabla de mapeo de símbolos de entrada al alfabeto.
  *
-* @return Puntero al DFA inicializado.
+ * @return Puntero al DFA inicializado.
  */
 DFA* dfa_init(size_t n_states, size_t n_alphabet, size_t n_symbols,
-              uint32_t accepting_bitmap, const int* mapping_table,
-              const int transition_table[n_states][n_alphabet]);
+              uint64_t accepting_bitmap, const short int* mapping_table,
+              const short int transition_table[n_states][n_alphabet]);
 
 /**
  * @brief Destruye el DFA, liberando cualquier recurso asociado.
- * 
+ *
  * @param dfa puntero al DFA a destruir.
  */
 void dfa_destroy(DFA* dfa);
@@ -105,12 +107,12 @@ void dfa_destroy(DFA* dfa);
  *
  * @param dfa Puntero al DFA que consumirá la entrada.
  * @param input Símbolo de entrada a procesar.
- * @return El estado del DFA después de procesar la entrada.
- *         ACCEPTING si se encuentra en aceptación
- *         REJECTING si no se encuentra en aceptación
- *         ERROR si ocurre un error (entrada no válida o transición no
- * definida). En caso de error, el estado del DFA no cambia y se interpreta como
- *           si la entrada no hubiera sido procesada.
+ * @return El status del DFA después de procesar la entrada.
+ * @retval ACCEPTING si se encuentra en aceptación
+ * @retval REJECTING si no se encuentra en aceptación
+ * @retval NO_TRANSITION si no existe transición definida para la entrada
+ * @retval NO_MAPPING símbolo de entrada no mapeado al alfabeto del DFA
+ * @retval ERROR símbolo no válido
  */
 dfa_status dfa_step(DFA* dfa, symbol input);
 
@@ -121,3 +123,22 @@ dfa_status dfa_step(DFA* dfa, symbol input);
  * @return El estado actual del DFA. -1 si el DFA es NULL.
  */
 state dfa_current_state(DFA* dfa);
+
+/**
+ * @brief Comprueba si el estado actual del DFA es un estado de aceptación.
+ * 
+ * @param dfa Puento al dfa
+ * @return dfa_status Estado actual del DFA.
+ * @retval -1 El DFA es NULL
+ * @retval ERROR si el simbolo es desconocido
+ * @retval NO_MAPPING si el simbolo es conocido pero esta mapeado
+ * @retval NO_TRANSITION si el simbolo es conocido pero no hay transición
+ * @retval ACCEPTING si el estado actual es de aceptación
+ * @retval REJECTING si el estado actual no es de aceptación
+ */
+dfa_status dfa_is_accepting(DFA* dfa);
+
+/**
+ * @brief Reinicia el DFA a su estado inicial (estado 0).
+ */
+void dfa_reset(DFA* dfa);
