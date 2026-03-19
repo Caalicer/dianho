@@ -25,8 +25,38 @@ void _print_element(element e) {
  * @param e2 Segundo elemento
  * @return Valor de comparación
  */
-int _elemcmp(element* e1, element* e2) {
-    return strcmp(e1->lexeme, e2->lexeme);
+int _elemcmp(const void* e1, const element* e2) {
+    return strcmp(((element*)e1)->lexeme, e2->lexeme);
+}
+
+int _fragcmp_impl(const fragments* frag, const element* elem) {
+    const char* str = elem->lexeme;
+    // Comparar fr1
+    for (size_t i = 0; i < frag->len1; i++) {
+        if (*str == '\0')
+            return 1; // str se agotó, frag es mayor
+        int diff = (unsigned char)frag->fr1[i] - (unsigned char)*str++;
+        if (diff != 0)
+            return diff;
+    }
+
+    // Comparar fr2 si existe
+    if (frag->fr2 != NULL) {
+        for (size_t i = 0; i < frag->len2; i++) {
+            if (*str == '\0')
+                return 1; // str se agotó, frag es mayor
+            int diff = (unsigned char)frag->fr2[i] - (unsigned char)*str++;
+            if (diff != 0)
+                return diff;
+        }
+    }
+
+    // Los fragmentos se agotaron, ver si str también
+    return -(unsigned char)*str; // 0 si str termina aquí, <0 si str es mayor
+}
+
+int _fragcmp(const void* frag, const element* e) {
+    return _fragcmp_impl((const fragments*)frag, e);
 }
 
 void symtab_init() {
@@ -78,6 +108,12 @@ lexeme* symtab_intern(lexeme* lexeme) {
     }
 
     return inserted;
+}
+
+lexeme* symtab_fragments_lookup(const fragments* token_fragments) {
+    if (!table)
+        return NULL;
+    return avl_fragment_search(table, token_fragments, _fragcmp);
 }
 
 void symtab_print() {

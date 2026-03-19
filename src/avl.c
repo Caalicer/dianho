@@ -33,9 +33,10 @@ struct AVLTree {
     node* root;  /**< Puntero al nodo raíz del árbol */
     size_t size; /**< Tamaño del árbol */
     void (*free_element)(
-        element * e); /**< Función callback para liberar el elemento */
-    int (*elemcmp)(element * e1,
-                   element * e2); /**< Función de comparación de elementos */
+        element* e); /**< Función callback para liberar el elemento */
+    int (*elemcmp)(
+        const void* e1,
+        const element* e2); /**< Función de comparación de elementos */
 };
 
 /**********************************
@@ -48,7 +49,7 @@ struct AVLTree {
  * @param data Datos a almacenar en el nodo.
  * @return Puntero al nuevo nodo. NULL si falla la asignación de memoria.
  */
-static node* _create_node(element *data);
+static node* _create_node(element* data);
 
 /**
  * @brief Libera la memoria ocupada por un nodo del árbol AVL y todos sus
@@ -59,7 +60,7 @@ static node* _create_node(element *data);
  * @param free_element Función callback para liberar el elemento almacenado en
  *                     el nodo.
  */
-static void _free_node(node* node, void (*free_element)(element *e));
+static void _free_node(node* node, void (*free_element)(element* e));
 
 /**
  * @brief Recorrido preorden sobre el subárbol con raíz en el nodo actual,
@@ -126,11 +127,14 @@ static void _update_height_balance(node* n);
  *
  * @param tree Puntero al AVLTree en el que se realizará la búsqueda.
  * @param data Elemento a buscar.
+ * @param cmp Función de comparación personalizada. Si es NULL, se usará la
+ *            función de comparación del árbol.
  * @param last Parametro de salida. Nodo padre del nodo encontrado o del último
  *             nodo visitado si no se encuentra.
  * @return node* Puntero al nodo encontrado, o NULL si no se encuentra.
  */
-static node* _search(const AVLTree* tree, element *data, node** last);
+static node* _search(const AVLTree* tree, void* data,
+                     int (*cmp)(const void*, const element*), node** last);
 
 static node* _find_min(node* n);
 
@@ -138,8 +142,8 @@ static node* _find_min(node* n);
  * Implementación funciones públicas *
  *************************************/
 
-AVLTree* avl_create(int (*elemcmp)(element *e1, element *e2),
-                    void (*free_element)(element *e)) {
+AVLTree* avl_create(int (*elemcmp)(const void* e1, const element* e2),
+                    void (*free_element)(element* e)) {
 
     AVLTree* tree = (AVLTree*)malloc(sizeof(AVLTree));
     if (!tree) {
@@ -163,7 +167,7 @@ void avl_destroy(AVLTree* tree) {
     free(tree);
 }
 
-element* avl_insert(AVLTree* tree, element *data) {
+element* avl_insert(AVLTree* tree, element* data) {
 
     if (!tree) {
         return NULL;
@@ -183,7 +187,7 @@ element* avl_insert(AVLTree* tree, element *data) {
 
     node* parent = NULL;
 
-    if (!_search(tree, data, &parent)) {
+    if (!_search(tree, data, NULL, &parent)) {
         new_node->parent = parent;
 
         if (tree->elemcmp(data, &(parent->data)) < 0) {
@@ -210,7 +214,7 @@ int avl_remove(AVLTree* tree, element data) {
         return -1;
     }
 
-    node* target = _search(tree, &data, NULL);
+    node* target = _search(tree, &data, NULL, NULL);
     if (!target) {
         return -1; // El elemento no existe en el árbol
     }
@@ -292,8 +296,15 @@ int avl_remove(AVLTree* tree, element data) {
     return 0;
 }
 
-element* avl_search(const AVLTree* tree, element *data) {
-    node* found = _search(tree, data, NULL);
+element* avl_search(const AVLTree* tree, element* data) {
+    node* found = _search(tree, data, NULL, NULL);
+    return found ? &(found->data) : NULL;
+}
+
+element* avl_fragment_search(const AVLTree* tree, const fragments* frag,
+                             int (*fragcmp)(const void* frag,
+                                            const element* e)) {
+    node* found = _search(tree, (void *)frag, fragcmp, NULL);
     return found ? &(found->data) : NULL;
 }
 
@@ -341,7 +352,7 @@ void avl_traverse(AVLTree* tree, int order, void (*callback)(element)) {
  * Implementacion funciones privadas *
  *************************************/
 
-static node* _create_node(element *data) {
+static node* _create_node(element* data) {
 
     node* new_node = (node*)malloc(sizeof(node));
     if (!new_node) {
@@ -481,7 +492,8 @@ static void _update_height_balance(node* n) {
     n->balance = right_height - left_height;
 }
 
-static node* _search(const AVLTree* tree, element *data, node** last) {
+static node* _search(const AVLTree* tree, void* data,
+                     int (*cmp)(const void*, const element*), node** last) {
     if (!tree || !tree->root) {
         return NULL;
     }
@@ -492,8 +504,8 @@ static node* _search(const AVLTree* tree, element *data, node** last) {
     while (current) {
         if (last)
             *last = current;
-        comparison = tree->elemcmp(data, &(current->data));
-
+        comparison = cmp == NULL ? tree->elemcmp(data, &(current->data))
+                                 : cmp(data, &(current->data));
         if (comparison == 0) {
             return current; // Elemento encontrado
         } else if (comparison < 0) {
@@ -506,7 +518,7 @@ static node* _search(const AVLTree* tree, element *data, node** last) {
     return NULL; // Elemento no encontrado
 }
 
-static void _free_node(node* node, void (*free_element)(element *e)) {
+static void _free_node(node* node, void (*free_element)(element* e)) {
 
     if (!node) {
         return;
@@ -517,7 +529,7 @@ static void _free_node(node* node, void (*free_element)(element *e)) {
     _free_node(node->right, free_element);
 
     free_element(&(node->data)); // liberar elemento
-    free(node);               // liberar nodo
+    free(node);                  // liberar nodo
 }
 
 static void _preorder(node* nodo, void (*callback)(void*, void*), void* ctx) {

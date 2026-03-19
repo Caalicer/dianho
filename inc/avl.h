@@ -49,8 +49,8 @@ typedef struct AVLTree AVLTree;
  * @param free_element Función callback para liberar la memoria del elemento
  * @return Puntero al AVLTree. NULL si falla la asignación de memoria.
  **/
-AVLTree* avl_create(int (*elemcmp)(element *e1, element *e2),
-                    void (*free_element)(element *e));
+AVLTree* avl_create(int (*elemcmp)(const void* e1, const element* e2),
+                    void (*free_element)(element* e));
 
 /**
  * @brief Destruye un AVLTree y libera toda la memoria asociada.
@@ -65,7 +65,7 @@ void avl_destroy(AVLTree* tree);
  * @retval  e Puntero al elemento insertado.
  * @retval  NULL Error en la inserción.
  */
-element* avl_insert(AVLTree* tree, element *data);
+element* avl_insert(AVLTree* tree, element* data);
 
 /**
  * @brief Elimina un nodo con la clave dada del Árbol AVL.
@@ -83,7 +83,19 @@ int avl_remove(AVLTree* tree, element data);
  * @retval e Puntero al elemento encontrado.
  * @retval NULL No se encontró la clave.
  **/
-element* avl_search(const AVLTree* tree, element *data);
+element* avl_search(const AVLTree* tree, element* data);
+
+/**
+ * @brief Busca mediante los fragmentos de una clave en el Árbol AVL
+ *
+ * @param tree Puntero al AVLTree en el que se realizará la búsqueda.
+ * @param frag Fragmentos a buscar
+ * @param fragcmp Función de comparación de los fragmentos con un element
+ * @return element*
+ */
+element* avl_fragment_search(const AVLTree* tree, const fragments* frag,
+                             int (*fragcmp)(const void* frag,
+                                            const element* e));
 
 /**
  * @brief Obtiene el número de nodos en el Árbol AVL.

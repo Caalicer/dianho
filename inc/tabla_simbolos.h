@@ -43,7 +43,14 @@ void symtab_terminate();
 lexeme* symtab_intern(lexeme* lexeme);
 
 /**
+ * @brief Busca mediante los fragmentos de un lexema en la Tabla de Simbolos.
+ *
+ * @param lexeme Lexema a buscar.
+ * @return Puntero al lexema encontrado, o NULL si no se encuentra.
+ */
+lexeme* symtab_fragments_lookup(const fragments* token_fragments);
+
+/**
  * @brief Imprime el contenido completo de la Tabla de Símbolos.
- * 
  */
 void symtab_print();
