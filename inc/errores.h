@@ -14,15 +14,43 @@
  * @enum error_code
  * @brief Códigos de error para identificar diferentes tipos de errores.
  */
-typedef enum { ERROR_1, ERROR_2, ERROR_3, ERROR_COUNT } error_code;
+typedef enum {
+    UNKNOWN_SYMBOL,
+    LEXEME_TOO_LONG,
+    NOT_INITIALIZED,
+    MEMORY_ALLOCATION_ERROR,
+    UNFINISHED_BCOMMENT,
+    UNFINISHED_NCOMMENT,
+    UNFINISHED_STRING,
+    DFA_INIT,
+    MALFORMED_BIN,
+    MALFORMED_EXP,
+    ERROR_COUNT
+} error_code;
+
+typedef enum { MALFORMED_ATOMIC, MALFORMED_NUMBER, WARNING_COUNT } warning_code;
 
 /**
  * @brief Mensajes de error correspondientes a cada código.
  */
 static const char* errors[ERROR_COUNT] = {
-    [ERROR_1] = "1: Descripción del error 1.",
-    [ERROR_2] = "2: Descripción del error 2.",
-    [ERROR_3] = "3: Descripción del error 3."};
+    [UNKNOWN_SYMBOL] = "USYM: Símbolo no soportado.",
+    [LEXEME_TOO_LONG] = "LTL: Lexema demasiado largo.",
+    [NOT_INITIALIZED] = "INTERNO: uso de un componente no inicializado.",
+    [MEMORY_ALLOCATION_ERROR] =
+        "INTERNO: asignación de memoria con malloc fallida.",
+    [UNFINISHED_BCOMMENT] = "UFC: Comentario de bloque no terminado.",
+    [UNFINISHED_NCOMMENT] = "UFN: Comentario anidable no terminado.",
+    [UNFINISHED_STRING] = "UFS: Cadena no terminada.",
+    [DFA_INIT] = "INTERNO: DFA en estado inicial",
+    [MALFORMED_BIN] = "MFB: Número binario mal formado.",
+    [MALFORMED_EXP] = "MFE: Número con exponente mal formado."};
+
+static const char* warnings[WARNING_COUNT] = {
+    [MALFORMED_ATOMIC] = "MFA: Posible operador o delimitador mal formado.\n\t "
+                         "Falsos positivos como (( ))",
+    [MALFORMED_NUMBER] = "MFN: Posible número mal formado.\n\t Falsos "
+                         "positivos como 1+1 (1 + 1)"};
 
 /**
  * @brief Emite un mensaje de error basado en el código de error proporcionado.
@@ -34,5 +62,13 @@ static inline void emit_error(int line, error_code code) {
         fprintf(stderr, "\nLínea %d: error desconocido.\n\n", line);
         return;
     }
-    fprintf(stderr, "\nLínea %d %s\n\n", line, errors[code]);
+    //fprintf(stderr, "\nLínea %d %s\n\n", line, errors[code]);
+}
+
+static inline void emit_warning(int line, warning_code code) {
+    if (code < 0 || code >= WARNING_COUNT || warnings[code] == NULL) {
+        fprintf(stderr, "\nLínea %d: advertencia desconocida.\n\n", line);
+        return;
+    }
+    fprintf(stderr, "\nLínea %d %s\n\n", line, warnings[code]);
 }
