@@ -22,38 +22,68 @@
 
 #include <ctype.h>
 #include <stdint.h>
+#include "definiciones.h"
+#include "errores.h"
+
+/**
+ * @enum char_type Diferentes tipos de caracteres
+ * @brief Agrupa los caracteres en tipos gestionables por un mismo handler
+ *
+ * > [!CAUTION] Añadir entradas
+ * > Los dfas tiene que ir al principio para poder usarlos como índices.
+ * > Inmediantamente después siempre debe ir DFA_COUNT.
+ */
+typedef enum {
+    ALPHANUMERIC,
+    NUMERIC,
+    COMMENTS,
+    ATOMICS,
+    STRINGS,
+    DFA_COUNT, ///< Recuento de tipos. Importante que los DFA sea
+    WHITESPACE,
+    D_EOF,
+    UNKNOWN
+} implemented_dfa;
 
 /**********************
  *    ALFANUMÉRICO    *
  **********************/
 
-typedef enum { anq_init, anq_ACCEPT, anq_COUNT_STATES } alfanumerico_states;
+/// Mappers para cada autómata,
+
+typedef enum { anq_init, anq_ACCEPT, anq_COUNT_STATES } alphanumeric_states;
 
 typedef enum {
     ana_letra,
     ana_digito,
     ana__,
     ana_COUNT_SYMBOLS
-} alfanumerico_symbols;
+} alphanumeric_symbols;
 
-static const short int alfnum_trans[anq_COUNT_STATES][ana_COUNT_SYMBOLS] = {
+static const short int alphanum_trans[anq_COUNT_STATES][ana_COUNT_SYMBOLS] = {
     // letra, digito
     [anq_init] = {anq_ACCEPT, -1},
     [anq_ACCEPT] = {anq_ACCEPT, anq_ACCEPT}};
 
-static uint64_t alfanum_accpeting_bitmap = (1ULL << anq_ACCEPT);
+static uint64_t alphanum_accpeting_bitmap = (1ULL << anq_ACCEPT);
 
-void alfanumerico_mapper(short int map[256]){
+static short int alphanumeric_token[anq_COUNT_STATES] = {
+    [anq_init] = DFA_INIT,
+    [anq_ACCEPT] = ID};
+
+static short int alphanumeric_map[256];
+
+void alphanum_mapper(){
     
     for (int i = 0; i < 256; i++) {
-        if (isalpha(i)) map[i] = ana_letra;
-        else if (isdigit(i)) map[i] = ana_digito;
-        else map[i] = -1; // Símbolo no mapeado
+        if (isalpha(i)) alphanumeric_map[i] = ana_letra;
+        else if (isdigit(i)) alphanumeric_map[i] = ana_digito;
+        else alphanumeric_map[i] = -1; // Símbolo no mapeado
     }
-    map['_'] = ana__;
+    alphanumeric_map['_'] = ana__;
 }
 
-/*****************
+/******************
  *    NUMÉRICO    *
  ******************/
 
@@ -71,7 +101,7 @@ typedef enum {
     nq_DDOT,        ///< ACEPTA el atómico '..'
     nq_DDDOT,       ///< ACEPTA el atómico '...'
     nq_COUNT_STATES ///< Recuento de estados
-} numerico_states;
+} numeric_states;
 
 typedef enum {
     na_0,            ///< número 0
@@ -85,9 +115,9 @@ typedef enum {
     na_PLUS,         ///< signo '+' para exponentes
     na_MINUS,        ///< signo '-' para exponentes
     na_COUNT_SYMBOLS ///< Recuento de símbolos
-} numerico_symbols;
+} numeric_symbols;
 
-static const short int numerico_trans[nq_COUNT_STATES][na_COUNT_SYMBOLS] = {
+static const short int numeric_trans[nq_COUNT_STATES][na_COUNT_SYMBOLS] = {
     //              0,             1,             num,           b,          _,             .,             e,          E,          +,          -
     [nq_init]   = {nq_INTB,   nq_INT,    nq_INT,    -1,     -1,        nq_DOT,    -1,     -1,     -1,        -1},
     [nq_INTB]   = {nq_INT,    nq_INT,    nq_INT,    nq_bin, nq_INT,    nq_FLOATD, nq_exp, nq_exp, -1,        -1},
@@ -102,20 +132,36 @@ static const short int numerico_trans[nq_COUNT_STATES][na_COUNT_SYMBOLS] = {
     [nq_DDOT]   = {-1,        -1,        -1,        -1,     -1,        nq_DDDOT,  -1,     -1,     -1,        -1},
     [nq_DDDOT]  = {-1,        -1,        -1,        -1,     -1,        -1,        -1,     -1,     -1,        -1}};
 
-static uint64_t numerico_accpeting_bitmap =
+static uint64_t numeric_accpeting_bitmap =
     (1ULL << nq_INTB)   | (1ULL << nq_BIN)    | (1ULL << nq_INT)    |
     (1ULL << nq_FLOATD) | (1ULL << nq_FLOATM) | (1ULL << nq_FLOATE) |
     (1ULL << nq_DOT)    | (1ULL << nq_DDOT)   | (1ULL << nq_DDDOT);
 
-void numerico_mapper(short int map[256]){
+static short int numeric_token[nq_COUNT_STATES] = {
+    [nq_init] = DFA_INIT,
+    [nq_INTB] = INTEGER_LITERAL,
+    [nq_bin] = MALFORMED_BIN,
+    [nq_BIN] = BINARY_LITERAL,
+    [nq_INT] = INTEGER_LITERAL,
+    [nq_FLOATD] = FLOAT_LITERAL,
+    [nq_FLOATM] = FLOAT_LITERAL,
+    [nq_exp] = MALFORMED_EXP,
+    [nq_FLOATE] = EXPONENTIAL_LITERAL,
+    [nq_DOT] = '.',
+    [nq_DDOT] = DDOT,
+    [nq_DDDOT] = DDDOT,
+};
+static short int numeric_map[256];
+
+void numeric_mapper(){
 
     for(int i = 0; i<256; i++){
-        if(isdigit(i)) map[i] = na_num;
-        else map[i] = -1; 
+        if(isdigit(i)) numeric_map[i] = na_num;
+        else numeric_map[i] = -1; 
     }
-    map['0'] = na_0; map['_'] = na__; map['.'] = na_dot;
-    map['1'] = na_1; map['e'] = na_e; map['+'] = na_PLUS;
-    map['b'] = na_b; map['E'] = na_E; map['-'] = na_MINUS; 
+    numeric_map['0'] = na_0; numeric_map['_'] = na__; numeric_map['.'] = na_dot;
+    numeric_map['1'] = na_1; numeric_map['e'] = na_e; numeric_map['+'] = na_PLUS;
+    numeric_map['b'] = na_b; numeric_map['E'] = na_E; numeric_map['-'] = na_MINUS; 
 }
 
 /********************
@@ -131,14 +177,14 @@ typedef enum {
     cq_block2,      ///< formando comentario de bloque, esperando cierre '/**'
     cq_BLOCK,       ///< ACEPTA comentario de bloque
     cq_recursive,   ///< formando comentario anidado
-    cq_begin,   ///< posible nuevo nivel de anidamiento, esperando '+'
+    cq_begin,       ///< posible nuevo nivel de anidamiento, esperando '+'
     cq_push,        ///< Push en la pila. Nuevo nivel de anidamiento
-    cq_end,     ///< posible fin de nivel de anidamiento, esperando '/'
+    cq_end,         ///< posible fin de nivel de anidamiento, esperando '/'
     cq_pop,         ///< Pop en la pila, fin de un nivel de anidamiento
-    cq_D,    ///< ACEPTA el atómico '/' (si no es el inicio de un comentario)
-    cq_DE,    ///< ACEPTA el atómico '/=' (si no es el inicio de un comentario)
+    cq_D,           ///< ACEPTA el atómico '/' (si no es el inicio de un comentario)
+    cq_DE,          ///< ACEPTA el atómico '/=' (si no es el inicio de un comentario)
     cq_COUNT_STATES ///< Recuento de estados
-} comentarios_states;
+} comments_states;
 
 typedef enum {
     ca_SLASH,        ///< caracter '/'
@@ -146,11 +192,11 @@ typedef enum {
     ca_PLUS,         ///< caracter '+' para anidar comentarios
     ca_NEWLINE,      ///< rune '\n'
     ca_OTHER,        ///< cualquier otro caracter
-    ca_E,            ///< caracter '=' 
+    ca_E,            ///< caracter '='
     ca_COUNT_SYMBOLS ///< Recuento de símbolos
-} comentarios_symbols;
+} comments_symbols;
 
-static const short int comentarios_trans[cq_COUNT_STATES][ca_COUNT_SYMBOLS] = {
+static const short int comments_trans[cq_COUNT_STATES][ca_COUNT_SYMBOLS] = {
     //                 /                 *                 +                 \n                 OTHER             =
     [cq_init]      = {cq_selector,  -1,           -1,            -1,           -1,           -1},
     [cq_selector]  = {cq_line,      cq_block,     cq_recursive,  -1,           cq_D,         cq_DE},
@@ -163,19 +209,39 @@ static const short int comentarios_trans[cq_COUNT_STATES][ca_COUNT_SYMBOLS] = {
     [cq_begin]     = {cq_recursive, cq_recursive, cq_push,       cq_recursive, cq_recursive, cq_recursive},
     [cq_push]      = {cq_recursive, cq_recursive, cq_recursive,  cq_recursive, cq_recursive, cq_recursive},
     [cq_end]       = {cq_pop,       cq_recursive, cq_recursive,  cq_recursive, cq_recursive, cq_recursive},
-    [cq_pop]       = {cq_recursive, cq_recursive, cq_recursive,  cq_recursive, cq_recursive, cq_recursive}};
+    [cq_pop]       = {cq_recursive, cq_recursive, cq_recursive,  cq_recursive, cq_recursive, cq_recursive},
+    [cq_D]         = {-1,           -1,           -1,            -1,           -1,           -1},
+    [cq_DE]        = {-1,           -1,           -1,            -1,           -1,           -1}};
 
-static uint64_t comentarios_accpeting_bitmap = 
+static uint64_t comments_accpeting_bitmap = 
     (1ULL << cq_LINE) | (1ULL << cq_BLOCK) | (1ULL << cq_D) | (1ULL << cq_DE);
 
-void comentarios_mapper(short int map[256]){
+static short int comments_token[cq_COUNT_STATES] = {
+    [cq_init] = DFA_INIT,
+    [cq_selector] = DFA_INIT,
+    [cq_line] = UNFINISHED_STRING,
+    [cq_LINE] = -2,  // No emite token y se ignora
+    [cq_block] = UNFINISHED_BCOMMENT,
+    [cq_block2] = UNFINISHED_BCOMMENT,
+    [cq_BLOCK] = -2, // -2 porque EOF es -1
+    [cq_recursive] = UNFINISHED_NCOMMENT,
+    [cq_begin] = UNFINISHED_NCOMMENT,
+    [cq_push] = UNFINISHED_NCOMMENT,
+    [cq_end] = UNFINISHED_NCOMMENT,
+    [cq_pop] = UNFINISHED_NCOMMENT,
+    [cq_D] = '/',
+    [cq_DE] = DE};
+
+static short int comments_map[256];
+
+void comments_mapper(){
 
     for(int i = 0; i<256; i++){
-        map[i] = ca_OTHER; 
+        comments_map[i] = ca_OTHER; 
     }
-    map['/']  = ca_SLASH;   map['*'] = ca_STAR;
-    map['+'] = ca_PLUS;     map['='] = ca_E;
-    map['\n'] = ca_NEWLINE; 
+    comments_map['/']  = ca_SLASH;   comments_map['*'] = ca_STAR;
+    comments_map['+'] = ca_PLUS;     comments_map['='] = ca_E;
+    comments_map['\n'] = ca_NEWLINE; 
 }
 
 /****************
@@ -206,13 +272,21 @@ static const short int strings_trans[sq_COUNT_STATES][sa_COUNT_SYMBOLS] = {
 
 static uint64_t strings_accpeting_bitmap = (1ULL << sq_ACCEPT);
 
-void strings_mapper(short int map[256]){
+static short int strings_token[sq_COUNT_STATES] = {
+    [sq_init]   = DFA_INIT,
+    [sq_body]   = UNFINISHED_STRING,
+    [sq_escape] = UNFINISHED_STRING,
+    [sq_ACCEPT] = STRING_LITERAL};
+
+static short int strings_map[256];
+
+void strings_mapper(){
     
     for(int i = 0; i<256; i++){
-        map[i] = sa_OTHER; 
+        strings_map[i] = sa_OTHER; 
     }
-    map['"'] = sa_QUOTE;
-    map['\\'] = sa_BACKSLASH;
+    strings_map['"'] = sa_QUOTE;
+    strings_map['\\'] = sa_BACKSLASH;
 }
 
 /*****************
@@ -243,7 +317,7 @@ typedef enum {
     aq_GG,          ///< ACEPTA el atómico '>>'
     aq_GGG,         ///< ACEPTA el atómico '>>>'
     aq_COUNT_STATES ///< Recuento de estados
-} atomicos_states;
+} atomics_states;
 
 typedef enum {
     aa_STAR,         ///< caracter '*'
@@ -253,9 +327,9 @@ typedef enum {
     aa_LOWER,        ///< caracter '<'
     aa_GREATER,      ///< caracter '>'
     aa_COUNT_SYMBOLS ///< Recuento de símbolos
-} atomicos_symbols;
+} atomics_symbols;
 
-static const short int atomic_trans[aq_COUNT_STATES][aa_COUNT_SYMBOLS] = {
+static const short int atomics_trans[aq_COUNT_STATES][aa_COUNT_SYMBOLS] = {
     //            *S        +P        -M          =E           <L         >G
     [aq_init] = {aq_S, aq_P,  aq_M,  aq_E,    aq_L,  aq_G},
     [aq_S]    = {-1,   -1,    -1,    aq_SE,   -1,    -1},
@@ -280,18 +354,30 @@ static const short int atomic_trans[aq_COUNT_STATES][aa_COUNT_SYMBOLS] = {
     [aq_GG]   = {-1,   -1,    -1,    aq_GGE,  -1,    aq_GGG},
     [aq_GGG]  = {-1,   -1,    -1,    aq_GGGE, -1,    -1}};
 
-static uint64_t atomicos_accpeting_bitmap =  (1ULL << aq_S)  |
+static uint64_t atomics_accpeting_bitmap =  (1ULL << aq_S)  |
     (1ULL << aq_SE)  | (1ULL << aq_P)    |   (1ULL << aq_PP) | (1ULL << aq_PE) |
     (1ULL << aq_M)   | (1ULL << aq_MM)   |   (1ULL << aq_ME) | (1ULL << aq_E)  |
     (1ULL << aq_EE)  | (1ULL << aq_EG)   |   (1ULL << aq_L)  | (1ULL << aq_LE) |
     (1ULL << aq_LLE) | (1ULL << aq_LL)   |   (1ULL << aq_G)  | (1ULL << aq_GE) |
     (1ULL << aq_GGE) | (1ULL << aq_GGGE) |   (1ULL << aq_GG) | (1ULL << aq_GGG);
 
-void atomic_mapper(short int map[256]){
+static short int atomics_token[aq_COUNT_STATES] = {
+    [aq_init] = DFA_INIT,
+    [aq_S] = '*',   [aq_SE] = SE,
+    [aq_P] = '+',   [aq_PP] = PP,   [aq_PE] = PE,
+    [aq_M] = '-',   [aq_MM] = MM,   [aq_ME] = ME,
+    [aq_E] = '=',   [aq_EE] = EE,   [aq_EG] = EG,
+    [aq_L] = '<',   [aq_LE] = LE,   [aq_LLE] = LLE, [aq_LL] = LL,
+    [aq_G] = '>',   [aq_GE] = GE,   [aq_GGE] = GGE, [aq_GGGE] = GGGE, [aq_GG] = GG, [aq_GGG] = GGG};
+
+static short int atomics_map[256];
+
+void atomics_mapper(){
 
     for(int i = 0; i<256; i++){
-        map[i] = -1; 
+        atomics_map[i] = -1; 
     }
-    map['*'] = aa_STAR;  map['+'] = aa_PLUS;  map['-'] = aa_MINUS;
-    map['='] = aa_EQUAL; map['<'] = aa_LOWER; map['>'] = aa_GREATER;
+    atomics_map['*'] = aa_STAR;  atomics_map['+'] = aa_PLUS;
+    atomics_map['-'] = aa_MINUS; atomics_map['='] = aa_EQUAL;
+    atomics_map['<'] = aa_LOWER; atomics_map['>'] = aa_GREATER;
 }
