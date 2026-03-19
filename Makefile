@@ -26,6 +26,7 @@
 #╚══════════════════════════════════════╝
 
 NAME    := programa
+ARGS    ?= regression.d
 SRC_DIR := src
 INC_DIR := inc
 OBJ_DIR := obj
@@ -99,16 +100,16 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 #---<ejecucion>---
 
 runrelease: release
-	@$(BIN_DIR)/$(NAME)
+	@$(BIN_DIR)/$(NAME) $(ARGS)
 
 rundebug: debug
-	@$(BIN_DIR)/$(NAME)_debug
+	@$(BIN_DIR)/$(NAME)_debug $(ARGS)
 
 valgrind: debug
-	@valgrind $(BIN_DIR)/$(NAME)_debug
+	@valgrind $(BIN_DIR)/$(NAME)_debug $(ARGS)
 
 gdb: debug
-	@gdb $(BIN_DIR)/$(NAME)_debug
+	@gdb -ex "run $(ARGS)" --args $(BIN_DIR)/$(NAME)_debug $(ARGS)
 
 #---<limpieza>---
 
