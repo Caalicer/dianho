@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #define MAX_TOKEN_LENGTH 2048
 
@@ -46,6 +47,10 @@ static inline char* fragments_to_string(const fragments* frags){
     str[total] = '\0';
     return str;
 
+}
+
+static inline void print_lexeme(lexeme e) {
+    printf("\t <%d, %s>\n", e.lexical_token, e.lexeme);
 }
 
 /**

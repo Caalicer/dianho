@@ -1,5 +1,6 @@
 #include "tabla_simbolos.h"
 #include "avl.h"
+#include "definiciones.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -16,7 +17,7 @@ void _free_element(element* e) { free(e->lexeme); }
  * @param e Elemento a imprimir
  */
 void _print_element(element e) {
-    printf("\t <%d, %s>\n", e.lexical_token, e.lexeme);
+    print_lexeme((lexeme) e);
 }
 
 /**

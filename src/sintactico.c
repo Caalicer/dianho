@@ -1,23 +1,22 @@
+#include <stdbool.h>
+#include <stdio.h>
+
+#include "definiciones.h"
 #include "lexico.h"
 
-void parse(){
+void parse() {
 
+    lexeme* token;
+    bool continue_parsing = true;
+
+    while (continue_parsing) {
+
+        token = next_token();
+
+        if (token->lexical_token == EOF)
+            continue_parsing = false;
+        else
+            print_lexeme(*token);
+
+    }
 }
-
-
-// Función que invoca ao analizador sintáctico
-// void analizadorSintactico(char *nomeFicheiro) {
-//     CompLexico comp;
-
-//     iniciarAnalizadorLexico(nomeFicheiro);
-
-//     printf("----- INICIO DA ANÁLISE -----\n");
-//     while ((comp = segCompLexico()).comp_lexico != EOF) {
-//         if (comp.lexema != NULL) { // Realízase esta comprobación xa que en caso de erro o lexema será NULL
-//             printf("< %d, %s >\n", comp.comp_lexico, comp.lexema);
-//         }
-//     }
-//     printf("-----  FIN DA ANÁLISE   -----\n");
-
-//     finalizarAnalizadorLexico();
-// }
