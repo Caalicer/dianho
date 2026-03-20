@@ -61,9 +61,9 @@ typedef enum {
 } alphanumeric_symbols;
 
 static const short int alphanum_trans[anq_COUNT_STATES][ana_COUNT_SYMBOLS] = {
-    // letra, digito
-    [anq_init] = {anq_ACCEPT, -1},
-    [anq_ACCEPT] = {anq_ACCEPT, anq_ACCEPT}};
+    // letra, digito, ana__
+    [anq_init]   = {anq_ACCEPT, -1,         anq_ACCEPT},
+    [anq_ACCEPT] = {anq_ACCEPT, anq_ACCEPT, anq_ACCEPT}};
 
 static uint64_t alphanum_accpeting_bitmap = (1ULL << anq_ACCEPT);
 
@@ -71,7 +71,7 @@ static short int alphanumeric_token[anq_COUNT_STATES] = {
     [anq_init] = DFA_INIT,
     [anq_ACCEPT] = ID};
 
-static short int alphanumeric_map[256];
+static char alphanumeric_map[256];
 
 void alphanum_mapper(){
     
@@ -151,7 +151,7 @@ static short int numeric_token[nq_COUNT_STATES] = {
     [nq_DDOT] = DDOT,
     [nq_DDDOT] = DDDOT,
 };
-static short int numeric_map[256];
+static char numeric_map[256];
 
 void numeric_mapper(){
 
@@ -232,7 +232,7 @@ static short int comments_token[cq_COUNT_STATES] = {
     [cq_D] = '/',
     [cq_DE] = DE};
 
-static short int comments_map[256];
+static char comments_map[256];
 
 void comments_mapper(){
 
@@ -278,7 +278,7 @@ static short int strings_token[sq_COUNT_STATES] = {
     [sq_escape] = UNFINISHED_STRING,
     [sq_ACCEPT] = STRING_LITERAL};
 
-static short int strings_map[256];
+static char strings_map[256];
 
 void strings_mapper(){
     
@@ -315,7 +315,15 @@ typedef enum {
     aq_GGE,         ///< ACEPTA el atómico '>>='
     aq_GGGE,        ///< ACEPTA el atómico '>>>='
     aq_GG,          ///< ACEPTA el atómico '>>'
-    aq_GGG,         ///< ACEPTA el atómico '>>>'
+    aq_GGG,         ///< ACEPTA el atómico '>>>'j
+    aq_LP,          ///< ACEPTA el atómico '('
+    aq_RP,          ///< ACEPTA el atómico ')'
+    aq_LB,          ///< ACEPTA el atómico '{'
+    aq_RB,          ///< ACEPTA el atómico '}'
+    aq_LBR,         ///< ACEPTA el atómico '['
+    aq_RBR,         ///< ACEPTA el atómico ']'
+    aq_SEMI,        ///< ACEPTA el atómico ';'
+    aq_COMMA,       ///< ACEPTA el atómico ','
     aq_COUNT_STATES ///< Recuento de estados
 } atomics_states;
 
@@ -326,40 +334,58 @@ typedef enum {
     aa_EQUAL,        ///< caracter '='
     aa_LOWER,        ///< caracter '<'
     aa_GREATER,      ///< caracter '>'
+    aa_LPAREN,       ///< caracter '('
+    aa_RPAREN,       ///< caracter ')'
+    aa_LBRACE,       ///< caracter '{'
+    aa_RBRACE,       ///< caracter '}'
+    aa_LBRACKET,     ///< caracter '['
+    aa_RBRACKET,     ///< caracter ']'
+    aa_SEMI,        ///< caracter ';'
+    aa_COMMA,       ///< caracter ','
     aa_COUNT_SYMBOLS ///< Recuento de símbolos
 } atomics_symbols;
 
 static const short int atomics_trans[aq_COUNT_STATES][aa_COUNT_SYMBOLS] = {
-    //            *S        +P        -M          =E           <L         >G
-    [aq_init] = {aq_S, aq_P,  aq_M,  aq_E,    aq_L,  aq_G},
-    [aq_S]    = {-1,   -1,    -1,    aq_SE,   -1,    -1},
-    [aq_SE]   = {-1,   -1,    -1,    -1,      -1,    -1},
-    [aq_P]    = {-1,   aq_PP, -1,    aq_PE,   -1,    -1},
-    [aq_PP]   = {-1,   -1,    -1,    -1,      -1,    -1},
-    [aq_PE]   = {-1,   -1,    -1,    -1,      -1,    -1},
-    [aq_M]    = {-1,   -1,    aq_MM, aq_ME,   -1,    -1},
-    [aq_MM]   = {-1,   -1,    -1,    -1,      -1,    -1},
-    [aq_ME]   = {-1,   -1,    -1,    -1,      -1,    -1},
-    [aq_E]    = {-1,   -1,    -1,    aq_EE,   -1,    aq_EG},
-    [aq_EE]   = {-1,   -1,    -1,    -1,      -1,    -1},
-    [aq_EG]   = {-1,   -1,    -1,    -1,      -1,    -1},
-    [aq_L]    = {-1,   -1,    -1,    aq_LE,   aq_LL, -1},
-    [aq_LE]   = {-1,   -1,    -1,    -1,      -1,    -1},
-    [aq_LLE]  = {-1,   -1,    -1,    -1,      -1,    -1},
-    [aq_LL]   = {-1,   -1,    -1,    aq_LLE,  -1,    -1},
-    [aq_G]    = {-1,   -1,    -1,    aq_GE,   -1,    aq_GG},
-    [aq_GE]   = {-1,   -1,    -1,    -1,      -1,    -1},
-    [aq_GGE]  = {-1,   -1,    -1,    -1,      -1,    -1},
-    [aq_GGGE] = {-1,   -1,    -1,    -1,      -1,    -1},
-    [aq_GG]   = {-1,   -1,    -1,    aq_GGE,  -1,    aq_GGG},
-    [aq_GGG]  = {-1,   -1,    -1,    aq_GGGE, -1,    -1}};
+    //            *S        +P        -M          =E           <L         >G        (LP        )RP        {LB        }RB        [LBR        ]RBR      ;SEMI      ,COMMA
+    [aq_init] = {aq_S, aq_P,  aq_M,  aq_E,    aq_L,  aq_G,   aq_LP, aq_RP, aq_LB, aq_RB, aq_LBR, aq_RBR, aq_SEMI, aq_COMMA},
+    [aq_S]    = {-1,   -1,    -1,    aq_SE,   -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_SE]   = {-1,   -1,    -1,    -1,      -1,    -1 -1,  -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_P]    = {-1,   aq_PP, -1,    aq_PE,   -1,    -1 -1,  -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_PP]   = {-1,   -1,    -1,    -1,      -1,    -1 -1,  -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_PE]   = {-1,   -1,    -1,    -1,      -1,    -1 -1,  -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_M]    = {-1,   -1,    aq_MM, aq_ME,   -1,    -1 -1,  -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_MM]   = {-1,   -1,    -1,    -1,      -1,    -1 -1,  -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_ME]   = {-1,   -1,    -1,    -1,      -1,    -1 -1,  -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_E]    = {-1,   -1,    -1,    aq_EE,   -1,    aq_EG,  -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_EE]   = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_EG]   = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_L]    = {-1,   -1,    -1,    aq_LE,   aq_LL, -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_LE]   = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_LLE]  = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_LL]   = {-1,   -1,    -1,    aq_LLE,  -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_G]    = {-1,   -1,    -1,    aq_GE,   -1,    aq_GG,  -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_GE]   = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_GGE]  = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_GGGE] = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_GG]   = {-1,   -1,    -1,    aq_GGE,  -1,    aq_GGG, -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_GGG]  = {-1,   -1,    -1,    aq_GGGE, -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_LP]   = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_RP]   = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_LB]   = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_RB]   = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_LBR]  = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_RBR]  = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_SEMI] = {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1},
+    [aq_COMMA]= {-1,   -1,    -1,    -1,      -1,    -1,     -1,    -1,    -1,    -1,    -1,     -1,     -1,      -1}};
 
 static uint64_t atomics_accpeting_bitmap =  (1ULL << aq_S)  |
     (1ULL << aq_SE)  | (1ULL << aq_P)    |   (1ULL << aq_PP) | (1ULL << aq_PE) |
     (1ULL << aq_M)   | (1ULL << aq_MM)   |   (1ULL << aq_ME) | (1ULL << aq_E)  |
     (1ULL << aq_EE)  | (1ULL << aq_EG)   |   (1ULL << aq_L)  | (1ULL << aq_LE) |
     (1ULL << aq_LLE) | (1ULL << aq_LL)   |   (1ULL << aq_G)  | (1ULL << aq_GE) |
-    (1ULL << aq_GGE) | (1ULL << aq_GGGE) |   (1ULL << aq_GG) | (1ULL << aq_GGG);
+    (1ULL << aq_GGE) | (1ULL << aq_GGGE) |   (1ULL << aq_GG) | (1ULL << aq_GGG)|
+    (1ULL << aq_LP)  | (1ULL << aq_RP)   |   (1ULL << aq_LB) | (1ULL << aq_RB) |
+    (1ULL << aq_LBR) | (1ULL << aq_RBR)  |   (1ULL << aq_SEMI)| (1ULL << aq_COMMA);
 
 static short int atomics_token[aq_COUNT_STATES] = {
     [aq_init] = DFA_INIT,
@@ -368,9 +394,14 @@ static short int atomics_token[aq_COUNT_STATES] = {
     [aq_M] = '-',   [aq_MM] = MM,   [aq_ME] = ME,
     [aq_E] = '=',   [aq_EE] = EE,   [aq_EG] = EG,
     [aq_L] = '<',   [aq_LE] = LE,   [aq_LLE] = LLE, [aq_LL] = LL,
-    [aq_G] = '>',   [aq_GE] = GE,   [aq_GGE] = GGE, [aq_GGGE] = GGGE, [aq_GG] = GG, [aq_GGG] = GGG};
+    [aq_G] = '>',   [aq_GE] = GE,   [aq_GGE] = GGE, [aq_GGGE] = GGGE, [aq_GG] = GG, [aq_GGG] = GGG,
+    [aq_LP] = '(',  [aq_RP] = ')',
+    [aq_LB] = '{',  [aq_RB] = '}',
+    [aq_LBR] = '[', [aq_RBR] = ']',
+    [aq_SEMI] = ';', [aq_COMMA] = ',',
+};
 
-static short int atomics_map[256];
+static char atomics_map[256];
 
 void atomics_mapper(){
 
@@ -380,4 +411,8 @@ void atomics_mapper(){
     atomics_map['*'] = aa_STAR;  atomics_map['+'] = aa_PLUS;
     atomics_map['-'] = aa_MINUS; atomics_map['='] = aa_EQUAL;
     atomics_map['<'] = aa_LOWER; atomics_map['>'] = aa_GREATER;
+    atomics_map['('] = aa_LPAREN; atomics_map[')'] = aa_RPAREN;
+    atomics_map['{'] = aa_LBRACE; atomics_map['}'] = aa_RBRACE;
+    atomics_map['['] = aa_LBRACKET; atomics_map[']'] = aa_RBRACKET;
+    atomics_map[';'] = aa_SEMI; atomics_map[','] = aa_COMMA;
 }

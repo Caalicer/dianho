@@ -1,6 +1,7 @@
 # documentation
 .ltxaux/
 *.synctex.gz
+.vscode/
 
 # configuration
 compile_commands.json
@@ -9,3 +10,5 @@ compile_commands.json
 # compilation 
 obj*
 bin*
+
+ejemplo.txt

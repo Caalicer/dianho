@@ -25,6 +25,8 @@ typedef enum {
     DFA_INIT,
     MALFORMED_BIN,
     MALFORMED_EXP,
+    FILE_OPEN_ERROR,
+    FILE_BEGIN,
     ERROR_COUNT
 } error_code;
 
@@ -44,7 +46,9 @@ static const char* errors[ERROR_COUNT] = {
     [UNFINISHED_STRING] = "UFS: Cadena no terminada.",
     [DFA_INIT] = "INTERNO: DFA en estado inicial",
     [MALFORMED_BIN] = "MFB: Número binario mal formado.",
-    [MALFORMED_EXP] = "MFE: Número con exponente mal formado."};
+    [MALFORMED_EXP] = "MFE: Número con exponente mal formado.", 
+    [FILE_OPEN_ERROR] = "FOPEN: No se pudo abrir el archivo.",
+    [FILE_BEGIN] = "FBEGIN: No se puede retroceder, comienzo de fichero."};
 
 static const char* warnings[WARNING_COUNT] = {
     [MALFORMED_ATOMIC] = "MFA: Posible operador o delimitador mal formado.\n\t "
@@ -59,16 +63,16 @@ static const char* warnings[WARNING_COUNT] = {
  */
 static inline void emit_error(int line, error_code code) {
     if (code < 0 || code >= ERROR_COUNT || errors[code] == NULL) {
-        fprintf(stderr, "\nLínea %d: error desconocido.\n\n", line);
+        fprintf(stderr, "\n[ERROR] Línea %d: error desconocido.\n\n", line);
         return;
     }
-    //fprintf(stderr, "\nLínea %d %s\n\n", line, errors[code]);
+    fprintf(stderr, "\n[ERROR] Línea %d %s\n\n", line, errors[code]);
 }
 
 static inline void emit_warning(int line, warning_code code) {
     if (code < 0 || code >= WARNING_COUNT || warnings[code] == NULL) {
-        fprintf(stderr, "\nLínea %d: advertencia desconocida.\n\n", line);
+        fprintf(stderr, "\n[WARNING] Línea %d: advertencia desconocida.\n\n", line);
         return;
     }
-    fprintf(stderr, "\nLínea %d %s\n\n", line, warnings[code]);
+    fprintf(stderr, "\n[WARNING] Línea %d %s\n\n", line, warnings[code]);
 }
