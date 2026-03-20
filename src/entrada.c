@@ -145,7 +145,7 @@ const fragments* input_fragments() {
     } else {
 
         frags.len1 =
-            (size_t)(BUFFER_SIZE -
+            (size_t)(half_status[_which_half(lexeme_begin)].length -
                      (lexeme_begin - buffer[_which_half(lexeme_begin)]));
 
         // Edge case: forward está en el inicio -> un solo fragmento
@@ -154,7 +154,7 @@ const fragments* input_fragments() {
             frags.len2 = 0;
         } else {
             frags.fr2 = buffer[1 - _which_half(lexeme_begin)];
-            frags.len2 = (size_t)(forward - buffer[1 - _which_half(forward)]);
+            frags.len2 = (size_t)(forward - buffer[_which_half(forward)]);
         }
     }
     return &frags;

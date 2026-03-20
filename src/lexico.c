@@ -164,7 +164,6 @@ lexeme* next_token() {
 
         type = _char_classify(input_peek());
 
-        input_advance(); // Inicio de token, unificamos centinelas
         switch (type) {
             case D_EOF:
                 token->lexical_token = EOF;
@@ -186,6 +185,7 @@ lexeme* next_token() {
                 break;
 
             default:
+                input_advance(); // Inicio de token, unificamos centinelas
                 token_fragments =
                     _automata_handler(specs[type].automata, &specs[type].ops);
 
@@ -276,6 +276,7 @@ const fragments* _automata_handler(DFA* automata, handler_ops* ops) {
                              //              STRINGS  -> EOF
         switch (status) {
             case ACCEPTING:
+                ctx.token_len++;
                 ops->on_accept(&ctx); // String y comments al aceptar paran
                 break;
 
@@ -327,7 +328,6 @@ void _h_void(handler_ctx* ctx) {
 }
 
 void _h_accept(handler_ctx* ctx) {
-    ctx->token_len++;
     ctx->continue_reading = false;
 
     if (ctx->last_state == cq_D) {

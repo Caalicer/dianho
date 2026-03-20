@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_TOKEN_LENGTH 2048
+#define MAX_TOKEN_LENGTH 1024
 
 /**
  * @brief Estructura que representa un lexema en el analizador léxico.
