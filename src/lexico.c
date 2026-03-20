@@ -141,6 +141,14 @@ void lexer_init() {
     state_mapper[STRINGS] = strings_token;
 }
 
+void lexer_terminate() {
+    dfa_destroy(alphanumeric);
+    dfa_destroy(numeric);
+    dfa_destroy(comments);
+    dfa_destroy(atomics);
+    dfa_destroy(strings);
+}
+
 lexeme* next_token() {
     lexeme* token;
     const fragments* token_fragments = NULL;
@@ -180,7 +188,16 @@ lexeme* next_token() {
             default:
                 token_fragments =
                     _automata_handler(specs[type].automata, &specs[type].ops);
-                if (type != COMMENTS)
+
+                // Condicional tricky.
+                if (type != COMMENTS) // Los comentarios no emiten token
+                    token_found = true;
+                // Pero dentro del dfa de comentarios detectamos dos atómicos
+                else if (state_mapper[type][dfa_current_state(
+                             specs[type].automata)] == '/' ||
+                         state_mapper[type][dfa_current_state(
+                             specs[type].automata)] == DE)
+                    // Dentro de los comentarios, es '/' o '/='
                     token_found = true;
         }
     }
@@ -268,6 +285,7 @@ const fragments* _automata_handler(DFA* automata, handler_ops* ops) {
 
             case NO_TRANSITION:
                 ops->on_no_transition(&ctx); // Para numeric: emite errores
+                /* fallthrough */
             case NO_MAPPING:
                 if (ctx.c == '\n')
                     line_number--;
@@ -299,7 +317,7 @@ const fragments* _automata_handler(DFA* automata, handler_ops* ops) {
             break;
         }
     }
-
+    // printf("devuelvo fragmentos");
     return input_fragments();
 }
 
@@ -311,6 +329,11 @@ void _h_void(handler_ctx* ctx) {
 void _h_accept(handler_ctx* ctx) {
     ctx->token_len++;
     ctx->continue_reading = false;
+
+    if (ctx->last_state == cq_D) {
+        input_ungetc();   // El atómico '/' se acepta detectando uno demás.
+        ctx->token_len--; // No contamos el extra
+    }
 }
 
 void _h_comments(handler_ctx* ctx) {
@@ -327,9 +350,17 @@ void _h_comments(handler_ctx* ctx) {
             ctx->continue_reading = false;
     }
     if (ctx->c == EOF) { // LLegamos al final del archivo sin cerrar
-        if (ctx->last_state == cq_line ||
-            ctx->last_state == cq_selector) { // con EOF también se acepta
+        if (ctx->last_state == cq_line || ctx->last_state == cq_selector) {
+            // El caso de cq_selector es tricky. En teoría no es posible que
+            // termine un archivo correcto ahí, pero tendríamos que detectarlo.
+            // Es un edge case raro y no merece la pena considerarlo. Supondría
+            // tener que hacer un step mas en el dfa con un caracter basura al
+            // azar como ' ' para que el estado final fuese el correcto y
+            // pudiese detectar bien el token next_token con los mappers, y no
+            // generar un ERROR y un lexema 999.
+            // Actualmente si el fichero fuente termina en / emite un DFA error
             ctx->continue_reading = false;
+
         } else {
             emit_error(line_number, comments_token[ctx->last_state]);
         }

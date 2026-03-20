@@ -3,6 +3,7 @@
 
 #include "definiciones.h"
 #include "lexico.h"
+#include "tabla_simbolos.h"
 
 void parse() {
 
@@ -13,10 +14,16 @@ void parse() {
 
         token = next_token();
 
-        if (token->lexical_token == EOF)
+        if (token->lexical_token == EOF) {
             continue_parsing = false;
-        else
+            free (token->lexeme);
+            free(token);
+        } else {
             print_lexeme(*token);
-
+            if (symtab_lookup(token) == NULL) {
+                free(token->lexeme);
+                free(token);
+            }
+        }
     }
 }

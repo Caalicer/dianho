@@ -29,7 +29,7 @@ void main()
             Nested comments should be supported, no matter what's inside /*//*/
         +/
     +/
-    double[] x = [0b1, 2, 3, 4, 5, 6.5, 7, 7.5, 8_000/1.0e+03, 8.5];
+    double[] x = [0b1, 2, 3, 4, 5, 6.5, 7, 7.5, 8_000/1.0e+03, 8.5, .9e];
     double[] y = [1, 2, 3, 3.2, 3.4, 40e-1, 4.2, 4.3, 4.35, 4.37];
     double x_bar, y_bar, b1, _0;
     //Mean and regression parameters calculation

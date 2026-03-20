@@ -10,15 +10,16 @@ static AVLTree* table = NULL; // tabla de símbolos opaca
  * @brief Libera la memoria asociada a un elemento (lexema) del AVL.
  * @param e Elemento a librar
  */
-void _free_element(element* e) { free(e->lexeme); }
+void _free_element(element* e) {
+    free(e->lexeme);
+    free(e);
+}
 
 /**
  * @brief Imprime un elemento (lexema) del AVL.
  * @param e Elemento a imprimir
  */
-void _print_element(element e) {
-    print_lexeme((lexeme) e);
-}
+void _print_element(element* e) { print_lexeme((lexeme)*e); }
 
 /**
  * @brief Compara dos elementos (lexemas) del AVL.
@@ -27,7 +28,7 @@ void _print_element(element e) {
  * @return Valor de comparación
  */
 int _elemcmp(const void* e1, const element* e2) {
-    return strcmp(((element*)e1)->lexeme, e2->lexeme);
+    return strcmp((((element*)e1)->lexeme), e2->lexeme);
 }
 
 int _fragcmp_impl(const fragments* frag, const element* elem) {
@@ -74,14 +75,15 @@ void symtab_init() {
         {INT, "int"},         //
         {WHILE, "while"},     //
         {FOREACH, "foreach"}, //
-        {CAST, "cast"}        //
+        {CAST, "cast"},       //
+        {RETURN, "return"}    //
     };
 
     for (size_t i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
-        lexeme temp = keywords[i];
-        // Para evitar problemas en symtab_terminate al usar _free_element
-        temp.lexeme = strdup(temp.lexeme);
-        avl_insert(table, &temp);
+        lexeme* kw = malloc(sizeof(lexeme));
+        kw->lexical_token = keywords[i].lexical_token;
+        kw->lexeme = strdup(keywords[i].lexeme);
+        avl_insert(table, kw);
     }
 }
 
@@ -115,6 +117,12 @@ lexeme* symtab_fragments_lookup(const fragments* token_fragments) {
     if (!table)
         return NULL;
     return avl_fragment_search(table, token_fragments, _fragcmp);
+}
+
+lexeme* symtab_lookup(lexeme* lexeme) {
+    if (!table)
+        return NULL;
+    return avl_search(table, lexeme);
 }
 
 void symtab_print() {

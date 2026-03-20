@@ -122,4 +122,4 @@ int avl_height(const AVLTree* tree);
  *        - `POSTORDER` (2): Izquierda → Derecha → Nodo
  * @param callback Función que se ejecutará en cada nodo del árbol.
  **/
-void avl_traverse(AVLTree* tree, int order, void (*callback)(element));
+void avl_traverse(AVLTree* tree, int order, void (*callback)(element*));

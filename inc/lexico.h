@@ -14,6 +14,10 @@
  */
 void lexer_init();
 
+/**
+ * @brief Finaliza el analizador léxico y libera los recursos utilizados.
+ */
+void lexer_terminate();
 
 /**
  * @brief Termina el analizador léxico y libera los recursos utilizados.

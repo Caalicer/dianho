@@ -17,7 +17,7 @@
  *         - Información almacenada
  */
 typedef struct node {
-    element data;        /**< Información almacenada    */
+    element* data;        /**< Información almacenada    */
     int balance;         /**< Factor de equilibrio      */
     int height;          /**< Altura en el árbol        */
     struct node* parent; /**< Puntero al nodo padre     */
@@ -182,7 +182,7 @@ element* avl_insert(AVLTree* tree, element* data) {
     if (!tree->root) {
         tree->root = new_node;
         tree->size = 1;
-        return &(new_node->data);
+        return new_node->data;
     }
 
     node* parent = NULL;
@@ -190,7 +190,7 @@ element* avl_insert(AVLTree* tree, element* data) {
     if (!_search(tree, data, NULL, &parent)) {
         new_node->parent = parent;
 
-        if (tree->elemcmp(data, &(parent->data)) < 0) {
+        if (tree->elemcmp(data, parent->data) < 0) {
             parent->left = new_node;
         } else {
             parent->right = new_node;
@@ -205,7 +205,7 @@ element* avl_insert(AVLTree* tree, element* data) {
     _rebalance(tree, new_node);
 
     tree->size++;
-    return &(new_node->data);
+    return new_node->data;
 }
 
 // todo revisar
@@ -284,7 +284,7 @@ int avl_remove(AVLTree* tree, element data) {
         replacement->parent = parent;
     }
 
-    tree->free_element(&(target->data));
+    tree->free_element(target->data);
     free(target);
 
     // Rebalancear el árbol desde el punto de rebalanceo
@@ -298,14 +298,14 @@ int avl_remove(AVLTree* tree, element data) {
 
 element* avl_search(const AVLTree* tree, element* data) {
     node* found = _search(tree, data, NULL, NULL);
-    return found ? &(found->data) : NULL;
+    return found ? found->data : NULL;
 }
 
 element* avl_fragment_search(const AVLTree* tree, const fragments* frag,
                              int (*fragcmp)(const void* frag,
                                             const element* e)) {
     node* found = _search(tree, (void *)frag, fragcmp, NULL);
-    return found ? &(found->data) : NULL;
+    return found ? found->data : NULL;
 }
 
 static node* _find_min(node* n) {
@@ -326,7 +326,7 @@ size_t avl_size(const AVLTree* tree) { return tree->size; }
 
 int avl_height(const AVLTree* tree) { return tree->root->height; }
 
-void avl_traverse(AVLTree* tree, int order, void (*callback)(element)) {
+void avl_traverse(AVLTree* tree, int order, void (*callback)(element*)) {
 
     if (!tree) {
         return;
@@ -359,7 +359,7 @@ static node* _create_node(element* data) {
         return NULL;
     }
 
-    new_node->data = *data;
+    new_node->data = data;
     new_node->height = 0;
     new_node->balance = 0;
     new_node->parent = NULL;
@@ -504,8 +504,8 @@ static node* _search(const AVLTree* tree, void* data,
     while (current) {
         if (last)
             *last = current;
-        comparison = cmp == NULL ? tree->elemcmp(data, &(current->data))
-                                 : cmp(data, &(current->data));
+        comparison = cmp == NULL ? tree->elemcmp(data, current->data)
+                                 : cmp(data, current->data);
         if (comparison == 0) {
             return current; // Elemento encontrado
         } else if (comparison < 0) {
@@ -528,7 +528,7 @@ static void _free_node(node* node, void (*free_element)(element* e)) {
     _free_node(node->left, free_element);
     _free_node(node->right, free_element);
 
-    free_element(&(node->data)); // liberar elemento
+    free_element(node->data); // liberar elemento
     free(node);                  // liberar nodo
 }
 
@@ -566,6 +566,6 @@ static void _postorder(node* nodo, void (*callback)(void*, void*), void* ctx) {
 }
 
 static void _element_adapter(void* nodo, void* ctx) {
-    void (*callback)(element) = (void (*)(element))ctx;
+    void (*callback)(element*) = (void (*)(element*))ctx;
     callback(((node*)nodo)->data);
 }

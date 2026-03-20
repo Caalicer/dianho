@@ -35,6 +35,7 @@ int main(int argc, char** argv) {
     symtab_print();
 
     // Finalizacion
+    lexer_terminate();
     symtab_terminate();
     input_close();
 
