@@ -92,7 +92,7 @@ typedef enum {
  * @return Puntero al DFA inicializado.
  */
 DFA* dfa_init(size_t n_states, size_t n_alphabet, size_t n_symbols,
-              uint64_t accepting_bitmap, const short int* mapping_table,
+              uint64_t accepting_bitmap, const char* mapping_table,
               const short int transition_table[n_states][n_alphabet]);
 
 /**

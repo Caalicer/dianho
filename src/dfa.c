@@ -1,5 +1,6 @@
 #include "dfa.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 /**
@@ -14,11 +15,11 @@ struct DFA {
     state current_state;       /**< Estado actual */
     uint64_t accepting_bitmap; /**< Bitmap estados aceptación */
     const short int* transition_table; /**< Tabla de transición de estados */
-    const short int* mapping_table;    /**< Tabla de mapeo al alfabeto */
+    const char* mapping_table;         /**< Tabla de mapeo al alfabeto */
 };
 
 DFA* dfa_init(size_t n_states, size_t n_alphabet, size_t n_symbols,
-              uint64_t accepting_bitmap, const short int* mapping_table,
+              uint64_t accepting_bitmap, const char* mapping_table,
               const short int transition_table[n_states][n_alphabet]) {
 
     DFA* dfa = malloc(sizeof(DFA));
@@ -45,12 +46,15 @@ void dfa_destroy(DFA* dfa) {
 
 dfa_status dfa_step(DFA* dfa, symbol input) {
 
-    if (!dfa) return -1;
+    if (!dfa)
+        return -1;
 
-    if (!dfa || input < 0 || (size_t)input >= dfa->n_symbols) {
+    if (input == EOF) 
+        return NO_TRANSITION;
+
+    if ((size_t)input >= dfa->n_symbols) 
         return ERROR; // Entrada no válida
-    }
-
+    
     int row = (int)dfa->current_state;
     int col = dfa->mapping_table[(int)input];
 
