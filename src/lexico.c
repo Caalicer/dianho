@@ -155,7 +155,7 @@ lexeme* next_token() {
     while (!token_found) {
 
         type = _char_classify(input_peek());
-        //printf("Automata a ejecutar: %d\n", type);
+
         input_advance(); // Inicio de token, unificamos centinelas
         switch (type) {
             case D_EOF:
@@ -164,7 +164,7 @@ lexeme* next_token() {
                 return token;
 
             case WHITESPACE: {
-                int c;
+                char c;
                 while (isspace(c = input_getc())) {
                     if (c == '\n')
                         line_number++;
@@ -194,19 +194,21 @@ lexeme* next_token() {
     } else {
         token->lexical_token =
             state_mapper[type][dfa_current_state(specs[type].automata)];
+        if (type == ALPHANUMERIC) {
+            lexeme* interned = symtab_fragments_lookup(token_fragments);
+            if (interned != NULL) {
+                free(token);
+                return interned;
+            }
+            token->lexeme = fragments_to_string(token_fragments);
+            symtab_intern(token);
+        }
     }
 
-    if (type == ALPHANUMERIC) {
-        lexeme* interned = symtab_fragments_lookup(token_fragments);
-        if (interned != NULL) {
-            free(token);
-            return interned;
-        }
-        token->lexeme = fragments_to_string(token_fragments);
-        symtab_intern(token);
-    } else {
+    if (type != ALPHANUMERIC) {
         token->lexeme = fragments_to_string(token_fragments);
     }
+
     return token;
 }
 
@@ -226,7 +228,9 @@ implemented_dfa _char_classify(char c) {
         return STRINGS;
     if (c == '/')
         return COMMENTS;
-    if (c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' )
+    if (c == '+' || c == '-' || c == '*' || c == '<' || c == '>' || c == '=' ||
+        c == '(' || c == ')' || c == '{' || c == '}' || c == '[' || c == ']' ||
+        c == ';' || c == ',')
         return ATOMICS;
     return UNKNOWN;
 }
@@ -242,19 +246,14 @@ const fragments* _automata_handler(DFA* automata, handler_ops* ops) {
         .token_len = 0, .is_recursive = false, .continue_reading = true};
 
     dfa_reset(automata);
-        printf("\n---\n");
     while (ctx.continue_reading) { // Avanzamos en el automata hasta aceptar
 
         ctx.c = input_getc();
-        printf ("%c ", ctx.c);
         status = dfa_step(automata, ctx.c);
         ctx.last_state = dfa_current_state(automata);
 
         if (ctx.c == '\n')
             line_number++;
-
-        //printf("Estado actual: %d, caracter leido: '%c', status: %d\n",
-         //      ctx.last_state, ctx.c, status);
 
         ops->on_start(&ctx); // Gestionamos: COMMENTS -> pila anidamiento y EOF
                              //              STRINGS  -> EOF
@@ -273,16 +272,17 @@ const fragments* _automata_handler(DFA* automata, handler_ops* ops) {
                 if (ctx.c == '\n')
                     line_number--;
                 input_ungetc(); // Leimos uno demas
-                //printf("Hacemos unget");
                 ctx.continue_reading = false;
                 break;
 
             case ERROR:
                 emit_error(line_number, UNKNOWN_SYMBOL);
+                ctx.continue_reading = false;
                 break;
 
             default:
                 emit_error(line_number, NOT_INITIALIZED);
+                ctx.continue_reading = false;
                 break;
         }
 
@@ -290,7 +290,7 @@ const fragments* _automata_handler(DFA* automata, handler_ops* ops) {
         /// caracter. Esto puede ocurrir, por ejemplo, en medio de un comentario
         /// anidado o string, probocando que el resto del archivo se tokenize de
         /// forma extraña.
-        if (ctx.token_len >= MAX_LEXEME) {
+        if (ctx.token_len >= MAX_TOKEN_LENGTH) {
             emit_error(line_number, LEXEME_TOO_LONG);
             if (ctx.c == '\n')
                 line_number--;
@@ -349,11 +349,15 @@ void _h_string(handler_ctx* ctx) {
 }
 
 void _h_num_error(handler_ctx* ctx) {
+#ifdef WARNING
     emit_warning(line_number, MALFORMED_NUMBER);
+#endif
     ctx->continue_reading = false;
 }
 
 void _h_atomic_error(handler_ctx* ctx) {
+#ifdef WARNING
     emit_warning(line_number, MALFORMED_ATOMIC);
+#endif
     ctx->continue_reading = false;
 }
