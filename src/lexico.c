@@ -33,7 +33,8 @@
  *        cada variable.
  */
 typedef struct {
-    size_t token_len;      ///< Longitud del token actual
+    size_t token_len; ///< Longitud del token actual
+    dfa_status status;
     bool is_recursive;     ///< El token es un comentario recursivo
     bool continue_reading; ///< Controlar la lectura de caracteres en el handler
     int nesting_stack;     ///< Pila de anidamiento en comentarios
@@ -252,13 +253,8 @@ implemented_dfa _char_classify(char c) {
     return UNKNOWN;
 }
 
-/// Sería mejor eliminar name. En vez de un enum pasar una estructura a
-/// callbacks opcionales: on-accept, on-eof, on-state. Esto parametrizaría esta
-/// función, haciendola independiente de los dfas implementados y más flexible a
-/// casuísticas concretas
 const fragments* _automata_handler(DFA* automata, handler_ops* ops) {
 
-    dfa_status status;
     handler_ctx ctx = {
         .token_len = 0, .is_recursive = false, .continue_reading = true};
 
@@ -266,7 +262,7 @@ const fragments* _automata_handler(DFA* automata, handler_ops* ops) {
     while (ctx.continue_reading) { // Avanzamos en el automata hasta aceptar
 
         ctx.c = input_getc();
-        status = dfa_step(automata, ctx.c);
+        ctx.status = dfa_step(automata, ctx.c);
         ctx.last_state = dfa_current_state(automata);
 
         if (ctx.c == '\n')
@@ -274,7 +270,7 @@ const fragments* _automata_handler(DFA* automata, handler_ops* ops) {
 
         ops->on_start(&ctx); // Gestionamos: COMMENTS -> pila anidamiento y EOF
                              //              STRINGS  -> EOF
-        switch (status) {
+        switch (ctx.status) {
             case ACCEPTING:
                 ctx.token_len++;
                 ops->on_accept(&ctx); // String y comments al aceptar paran
@@ -359,7 +355,7 @@ void _h_comments(handler_ctx* ctx) {
             // pudiese detectar bien el token next_token con los mappers, y no
             // generar un ERROR y un lexema 999.
             // Actualmente si el fichero fuente termina en / emite un DFA error
-            ctx->continue_reading = false;
+            ctx->status = dfa_step(comments, '\n'); // Forzamos transición
 
         } else {
             emit_error(line_number, comments_token[ctx->last_state]);

@@ -52,10 +52,13 @@ void input_ungetc();
  * @return const fragments* Punteros a los fragmentos del token actual.
  * @note [!IMPORTANT] El contenido apuntado por los fragmentos es al propio
  *                    buffer de entrada
+ *
+ * El uso de esta función nos permite no realizar copias innecesarias de los
+ * tokens, ya que se devuelven los fragmentos del propio doble buffer de
+ * entrada.
  */
 const fragments* input_fragments();
 
-/// unifica punteros
 /**
  * @brief Acepta el lexema actual. Actualiza el inicio a la par que el final
  *        acutal, preparandose para el siguiente token.

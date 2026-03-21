@@ -9,6 +9,7 @@
  **/
 
 #include <stdio.h>
+#include "definiciones.h"
 
 /**
  * @enum error_code
@@ -63,16 +64,12 @@ static const char* warnings[WARNING_COUNT] = {
  */
 static inline void emit_error(int line, error_code code) {
     if (code < 0 || code >= ERROR_COUNT || errors[code] == NULL) {
-        fprintf(stderr, "\n[ERROR] Línea %d: error desconocido.\n\n", line);
-        return;
+        print_err(C_RED, "\n[ERROR] Línea %d: error desconocido.\n\n", line);        return;
     }
-    fprintf(stderr, "\n[ERROR] Línea %d %s\n\n", line, errors[code]);
-}
+    print_err(C_RED, "\n[ERROR] Línea %d %s\n\n", line, errors[code]);}
 
 static inline void emit_warning(int line, warning_code code) {
     if (code < 0 || code >= WARNING_COUNT || warnings[code] == NULL) {
-        fprintf(stderr, "\n[WARNING] Línea %d: advertencia desconocida.\n\n", line);
-        return;
+        print_err(C_ORANGE, "\n[WARNING] Línea %d: advertencia desconocida.\n\n", line);        return;
     }
-    fprintf(stderr, "\n[WARNING] Línea %d %s\n\n", line, warnings[code]);
-}
+    print_err(C_ORANGE, "\n[WARNING] Línea %d %s\n\n", line, warnings[code]);}

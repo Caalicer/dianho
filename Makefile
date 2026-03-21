@@ -25,7 +25,7 @@
 #║ OBJS      object files               ║
 #╚══════════════════════════════════════╝
 
-NAME    := programa
+NAME    := lexer
 ARGS    ?= regression.d
 SRC_DIR := src
 INC_DIR := inc
@@ -33,7 +33,7 @@ OBJ_DIR := obj
 BIN_DIR := bin
 CC      := gcc
 CFLAGS  := -Wall -I$(INC_DIR)
-DFLAGS  := -Wextra -g -DDEBUG -DWARNINGS
+DFLAGS  := -Wextra -g -DDEBUG -DWARNING
 LDFLAGS := 
 SRCS    := $(shell find $(SRC_DIR) -type f -name "*.c")
 OBJS    := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
