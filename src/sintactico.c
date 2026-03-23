@@ -14,7 +14,7 @@ void parse() {
 
         token = next_token();
 
-        if (token->lexical_token == EOF) {
+        if (token->lexical_token == 0) { // EOF
             continue_parsing = false;
             free (token->lexeme);
             free(token);

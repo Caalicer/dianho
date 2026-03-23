@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "entrada.h"
 #include "tabla_simbolos.h"
 #include "sintactico.h"
 #include "lexico.h"
@@ -18,7 +17,6 @@ int main(int argc, char** argv) {
     printf("Preparando el sistema...\n");
     input_open(argv[1]);
     symtab_init();
-    lexer_init();
 
     printf("\nEstado inicial de la tabla de símbolos:\n");
     symtab_print();
@@ -35,7 +33,6 @@ int main(int argc, char** argv) {
     symtab_print();
 
     // Finalizacion
-    lexer_terminate();
     symtab_terminate();
     input_close();
 
