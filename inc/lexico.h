@@ -8,21 +8,16 @@
 
 #include "definiciones.h"
 
+/**
+ * @brief Inicializa el sistema de entrada.
+ * @param filename El nombre del archivo a analizar.
+ */
+void input_open(const char* filename);
 
 /**
- * @brief Inicializa el analizador léxico: automatas y estructura interna.
+ * @brief Termina el analizador de entrada y libera los recursos utilizados.
  */
-void lexer_init();
-
-/**
- * @brief Finaliza el analizador léxico y libera los recursos utilizados.
- */
-void lexer_terminate();
-
-/**
- * @brief Termina el analizador léxico y libera los recursos utilizados.
- */
-void lexer_terminate();
+void input_close();
 
 /**
  * @brief Obtiene el siguiente token del análisis léxico.
