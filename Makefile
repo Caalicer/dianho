@@ -37,9 +37,8 @@ DFLAGS  := -Wextra -g -DDEBUG -DWARNING
 LDFLAGS := 
 LEX     := flex
 LEX_SRC := $(SRC_DIR)/lex.yy.c
-LEX_OBJ := $(OBJ_DIR)/lex.yy.o
 SRCS    := $(shell find $(SRC_DIR) -type f -name "*.c")
-OBJS    := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS)) $(LEX_OBJ)
+OBJS    := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
 #  ╔══════════╗
 #╔═╣ UTENSILS ╠═════════════════════════╗
@@ -92,7 +91,7 @@ $(BIN_DIR)/$(NAME): $(LEX_SRC) $(SRCS)
 
 debug: $(LEX_SRC) $(BIN_DIR)/$(NAME)_debug
 
-$(BIN_DIR)/$(NAME)_debug: $(LEX_OBJ) $(OBJS)
+$(BIN_DIR)/$(NAME)_debug: $(OBJS)
 	@$(MKDIR_P) $(BIN_DIR)
 	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LDFLAGS)
 
@@ -103,10 +102,6 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 #---<flex>---
 $(LEX_SRC): $(SRC_DIR)/lexico.l # Generación del .c desde el .l
 	$(LEX) -o $@ $<
-
-$(LEX_OBJ): $(LEX_SRC)          # Compilación del .c generado
-	@$(MKDIR_P) $(OBJ_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@
 
 #---<ejecucion>---
 
@@ -128,7 +123,7 @@ clean:
 	$(RM) $(OBJ) $(BIN_DIR)/$(NAME) $(BIN_DIR)/$(NAME)_debug
 
 cleanall:
-	$(RM_RF) $(BIN_DIR) $(OBJ_DIR)
+	$(RM_RF) $(BIN_DIR) $(OBJ_DIR) $(LEX_SRC)
 
 #  ╔══════╗
 #  ║ SPEC ║
