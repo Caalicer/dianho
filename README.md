@@ -1,4 +1,4 @@
-# Analizador léxico de Dlang
+# Intérprete Matemático
 
 Construir un analizador léxico que devuelva los componentes léxicos que aparecen en el programa `regression.d`, codificado en el lenguaje D.
 
