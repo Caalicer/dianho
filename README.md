@@ -1,6 +1,10 @@
 # Intérprete Matemático
 
-Construir un analizador léxico que devuelva los componentes léxicos que aparecen en el programa `regression.d`, codificado en el lenguaje D, usando la herramienta *Flex*
+Construcción de un intérprete matemático siguiendo la [referencia léxica del lenguaje D](https://dlang.org/spec/lex.html) empleando las herramientas `Flex` y `Bison`.
+
+Para conocer más de las funcionalidades disponibles en el intérprete consulta la [Especificación del intérprete](especificacion.md)
+
+Para conocer la información sobre los requisitos analizados y las directrices de diseño empleadas consulta la [Referencia de diseño](disenho.md)
 
 ## SPECS de mi sistema
 
@@ -10,6 +14,7 @@ Construir un analizador léxico que devuelva los componentes léxicos que aparec
 - `valgrind`: *valgrind-3.18.1*
 - `gdb`: *GNU gdb (Ubuntu 12.1-0ubuntu1~22.04.2) 12.1*
 - `flex`: *flex 2.6.4*
+- `bison`: TODO
 
 ## Estructura del proyecto
 
@@ -21,11 +26,13 @@ Construir un analizador léxico que devuelva los componentes léxicos que aparec
     - LICENSE (licencia de uso)
     - Makefile
     - README.md
-    - regression.d
+    - *.md (documentación)
 
-### Docuemntación
+### Documentación
 
 Todas las funciones están documentadas en el `.h` asociado siguiendo el estilo de `doxygen`. Algunas tienen notas más extensas sobre cuestiones de diseño.
+
+La documentación del proyecto se encuentra en ficheros `.md` en la raíz del proyecto.
 
 ## Uso del Makefile
 
@@ -57,3 +64,7 @@ Las reglas de limpieza es recomendable usarlas si modificas alguno de los ficher
 >
 > En este caso la regla `cleanall` elimina también los archivos generados por
 > Flex: `lex.yy.c`
+
+> [!NOTE] Archivos de Bison
+>
+> TODO
