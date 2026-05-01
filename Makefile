@@ -12,33 +12,56 @@
 #  ╔═════════════╗
 #╔═╣ INGRIDIENTS ╠══════════════════════╗
 #║ ╚═════════════╝                      ║
+#║ --- target ---                       ║
 #║ NAME      target name                ║
+#║ ARGS      arguments to target        ║
+#║                                      ║
+#║ --- directories ---                  ║
 #║ SRC_DIR   source directory           ║
 #║ INC_DIR   include directory          ║
 #║ OBJ_DIR   target object directory    ║
 #║ BIN_DIR   target binary directory    ║
+#║                                      ║
+#║ --- tools ---                        ║
 #║ CC        compiler                   ║
+#║ LEX       lexical analyzer generator ║
+#║                                      ║
+#║ --- flags ---                        ║
 #║ CFLAGS    compiler flags             ║
 #║ DFLAGS    compiler debug extra files ║
-#║ LDFFLAGS  compiler link flags        ║
+#║ LDFLAGS   compiler link flags        ║
+#║                                      ║
+#║ --- files ---                        ║
+#║ L_IN      flex input file            ║
+#║ L_TARGET  flex source files          ║
 #║ SRCS      source files               ║
 #║ OBJS      object files               ║
+#║ GEN_SRCS  generated source files     ║
+#║ GEN_OBJS  generated object files     ║
 #╚══════════════════════════════════════╝
 
-NAME    := lexer
-ARGS    ?= regression.d
-SRC_DIR := src
-INC_DIR := inc
-OBJ_DIR := obj
-BIN_DIR := bin
-CC      := gcc
-CFLAGS  := -Wall -I$(INC_DIR)
-DFLAGS  := -Wextra -g -DDEBUG -DWARNING
-LDFLAGS := 
-LEX     := flex
-LEX_SRC := $(SRC_DIR)/lex.yy.c
-SRCS    := $(shell find $(SRC_DIR) -type f -name "*.c")
-OBJS    := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+NAME      := dianho
+ARGS      ?= regression.d
+ 
+SRC_DIR   := src
+INC_DIR   := inc
+OBJ_DIR   := obj
+BIN_DIR   := bin
+
+CC        := gcc
+LEX       := flex
+
+CFLAGS    := -Wall -I$(INC_DIR)
+DFLAGS    := -Wextra -g -DDEBUG -DWARNING
+LDFLAGS   := 
+
+L_IN	  := $(SRC_DIR)/lexico.l
+L_TARGET  := $(SRC_DIR)/lex.yy.c
+
+SRCS      := $(shell find $(SRC_DIR) -type f -name "*.c")
+OBJS      := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
+GEN_SRCS  := $(L_TARGET)
+GEN_OBJS  := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(GEN_SRCS))
 
 #  ╔══════════╗
 #╔═╣ UTENSILS ╠═════════════════════════╗
@@ -61,6 +84,7 @@ RM_RF    := rm -rf
 #║ debug          debug goal                      ║
 #║ $(NAME)_debug  link .o -> target               ║
 #║ %.o            compilation .c -> .o            ║
+#║ $(GEN_SRCS)    generación de código            ║
 #║ runrelease     run release target              ║
 #║ rundebug       run debug target                ║
 #║ valgrind       run debug target with valgrind  ║ 
@@ -83,25 +107,25 @@ help:
 
 #---<compilacion>---
 
-release: $(LEX_SRC) $(BIN_DIR)/$(NAME)
+release: $(BIN_DIR)/$(NAME)
 
-$(BIN_DIR)/$(NAME): $(LEX_SRC) $(SRCS)
+$(BIN_DIR)/$(NAME): $(SRCS) $(GEN_SRCS)
 	@$(MKDIR_P) $(BIN_DIR)
-	$(CC) $(CFLAGS) $(SRCS) -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-debug: $(LEX_SRC) $(BIN_DIR)/$(NAME)_debug
+debug: $(BIN_DIR)/$(NAME)_debug
 
-$(BIN_DIR)/$(NAME)_debug: $(OBJS)
+$(BIN_DIR)/$(NAME)_debug: $(OBJS) $(GEN_OBJS)
 	@$(MKDIR_P) $(BIN_DIR)
-	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@$(MKDIR_P) $(OBJ_DIR)
 	$(CC) $(CFLAGS) $(DFLAGS) -c $< -o $@
 
-#---<flex>---
-$(LEX_SRC): $(SRC_DIR)/lexico.l # Generación del .c desde el .l
-	$(LEX) -o $@ $<
+#---<generacion>---
+$(GEN_SRCS): $(L_IN)
+	$(LEX) -o $(L_TARGET) $(L_IN)
 
 #---<ejecucion>---
 
@@ -123,7 +147,7 @@ clean:
 	$(RM) $(OBJ) $(BIN_DIR)/$(NAME) $(BIN_DIR)/$(NAME)_debug
 
 cleanall:
-	$(RM_RF) $(BIN_DIR) $(OBJ_DIR) $(LEX_SRC)
+	$(RM_RF) $(BIN_DIR) $(OBJ_DIR) $(L_TARGET)
 
 #  ╔══════╗
 #  ║ SPEC ║
