@@ -8,16 +8,6 @@
 
 #include "definiciones.h"
 
-/**
- * @brief Inicializa el sistema de entrada.
- * @param filename El nombre del archivo a analizar.
- */
-void input_open(const char* filename);
-
-/**
- * @brief Termina el analizador de entrada y libera los recursos utilizados.
- */
-void input_close();
 
 /**
  * @brief Obtiene el siguiente token del análisis léxico.

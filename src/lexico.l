@@ -3,8 +3,7 @@
     #include "lexico.h"
     #include "tabla_simbolos.h"
     #include "errores.h"
-    #include "definiciones.h"
-    int nesting_stack = 0;
+    #include "interprete.tab.h"
 %}
 
 %x nesting
@@ -23,13 +22,17 @@ OctalDigit       [0-7]
 HexDigit         {Digit}|{HexLetter}
 
 EscapeSimple    \\[\'\"\\?abfnrtv0]
-/*'*/
 EscapeHex           \\x{HexDigit}{2}
 EscapeOctal         \\{OctalDigit}{1,3}
 EscapeUnicode4      \\u{HexDigit}{4}
 EscapeUnicode8      \\U{HexDigit}{8}
 /* Falta NamedCharacterEntity*/
 EscapeSequence      ({EscapeSimple}|{EscapeHex}|{EscapeOctal}|{EscapeUnicode4}|{EscapeUnicode8})
+
+/* OPERADORES INDIVIDUALES*/
+
+SINGLE_OPERATOR   [+\-*/%=><!&|^,;()]
+
 
 /* IDENTIFICADORES */
 IdentifierStart  _|{Letter}
@@ -41,8 +44,6 @@ IDENTIFIER       {IdentifierStart}{IdentifierChars}?
 BinaryDigitUS          {BinaryDigit}|_
 BinaryDigitsUS         {BinaryDigitUS}+
 BinaryDigitsNoSingleUS {BinaryDigitsUS}?{BinaryDigit}{BinaryDigitsUS}?
-BinPrefix              0b|0B
-BinaryInteger          {BinPrefix}{BinaryDigitsNoSingleUS}
 
 /* ENTEROS */
 DecimalDigitUS       {Digit}|_
@@ -51,7 +52,6 @@ Underscores          _+
 DecimalInteger       0{Underscores}?|{NonCeroDigit}{DecimalDigitsUS}?
 
 IntegerSuffix        (L|u|U|Lu|LU|uL|UL)
-BINARY_LITERAL       {BinaryInteger}{IntegerSuffix}?
 DECIMAL_INTEGER      {DecimalInteger}{IntegerSuffix}?
 /* Faltarían los hexadecimales */
 
@@ -70,113 +70,56 @@ DoubleQuotedCharacter    [^"\\\n]|{EscapeSequence}
 DoubleQuotedCharacters   ({DoubleQuotedCharacter})+
 DoubleQuotedString       \"({DoubleQuotedCharacters})?\"({StringPostfix})?   
 QUOTED_STRING            {DoubleQuotedString}
+
+/* BOOLEAN */
+
+True    [Tt][Rr][Uu][Ee]
+False   [Ff][Aa][Ll][Ss][Ee]
+BOOLEAN {True}|{False}
 /*"*/
 
 LineComment            "//"[^\n]*
-BlockCommentContent    ([^*]|\*[^/])*
-BlockComment           "/*"{BlockCommentContent}"*/"
-Comment                {LineComment}|{BlockComment}
+/* Limitamos comentarios a una linea */
+/* BlockCommentContent    ([^*\n]|\ *[^/\n])* */
+/* BlockComment           "/ *"{BlockCommentContent}"*/
+Comment                {LineComment}
 
 %%
 
 {Comment}     /* Ignorar comentarios */
-"/*"{BlockCommentContent} { emit_error(yylineno, UNFINISHED_BCOMMENT); }
-
-"/+"	                  {BEGIN(nesting); nesting_stack++;}
-<nesting>"+/"	          { nesting_stack--; if (nesting_stack == 0) BEGIN(INITIAL);}
-<nesting>"/+"	          { nesting_stack++;}
-<nesting>{Character}      {}
-<nesting><<EOF>>          { emit_error(yylineno, UNFINISHED_NCOMMENT); yyterminate(); }
 
 
-"..."   { return DDDOT; } /* Puntos */
-".."    { return DDOT; }
-"."     { return '.'; }
-"++"    { return PP; }    /* Aritmética */
+
+"**"    { return POW; }
 "+="    { return PE; }
-"+"     { return '+'; }
-"--"    { return MM; }
 "-="    { return ME; }
-"-"     { return '-'; }
 "*="    { return SE; }
-"*"     { return '*'; }
 "/="    { return DE; }
-"/"     { return '/'; }
-"=="    { return EE; }    /* Comparación */
-"<<="   { return LLE; }
-"<<"    { return LL; }
-"<="    { return LE; }
-"<"     { return '<'; }
-">>>="  { return GGGE; }
-">>>"   { return GGG; }
-">>="   { return GGE; }
-">>"    { return GG; }
 ">="    { return GE; }
-">"     { return '>'; }
-"=>"    { return EG; }    /* Asignación */
-"="     { return '='; }
-"!"     { return '!'; }   /* Otros */
-"~"     { return '~'; }
-"@"     { return '@'; }
-"?"     { return '?'; }
-","     { return ','; }
-";"     { return ';'; }
-":"     { return ':'; }
-"$"     { return '$'; }
-"("     { return '('; }
-")"     { return ')'; }
-"["     { return '['; }
-"]"     { return ']'; }
-"{"     { return '{'; }
-"}"     { return '}'; }
+"<="    { return LE; }
+"=="    { return EE; }
+"!="    { return NE; }
+"&&"    { return AND; } 
+"||"    { return OR; }
+"<<"    { return LSHIFT; }
+">>"    { return RSHIFT; }
 
-{IDENTIFIER}        { return ID; }
+{SINGLE_OPERATOR}   {return (int) *yytext;}
 
-{EXPONENTIAL_FLOAT} { return EXPONENTIAL_LITERAL; }
-{DECIMAL_FLOAT}     { return FLOAT_LITERAL; }
-{DECIMAL_INTEGER}   { return INTEGER_LITERAL; }
-{BINARY_LITERAL}    { return BINARY_LITERAL; }
-{QUOTED_STRING}     { return STRING_LITERAL; }
+{IDENTIFIER}        { yylval.str = strdup(yytext); return ID; }
 
-[ \t\r\n]+      { }
+{EXPONENTIAL_FLOAT} { yylval.str = strdup(yytext); return EXPONENTIAL_LITERAL; }
+{DECIMAL_FLOAT}     { yylval.str = strdup(yytext); return FLOAT_LITERAL; }
+{DECIMAL_INTEGER}   { yylval.str = strdup(yytext); return INTEGER_LITERAL; }
+{BOOLEAN}           { yylval.str = strdup(yytext); return BOOLEAN_LITERAL; }
+{QUOTED_STRING}     { yylval.str = strdup(yytext); return STRING_LITERAL; }
+
+\n                  { return NEWLINE; }
+
+[ \t\r]+      { }
 
 .               { emit_error(yylineno, UNKNOWN_SYMBOL); } /* Error */
 
 <<EOF>>                                             { yyterminate(); }
 
 %%
-
-void input_open(const char* nome){
-    if((yyin = fopen(nome, "r")) == NULL) {
-        emit_error(0, FILE_OPEN_ERROR);
-        exit(1);
-    }
-}
-
-void input_close(){
-    fclose(yyin);
-    yylex_destroy();
-}
-
-lexeme* next_token() {
-    lexeme* token;
-    if ((token = malloc(sizeof(lexeme))) == NULL) {
-        emit_error(yylineno, MEMORY_ALLOCATION_ERROR);
-        return NULL;
-    }
-
-    token->lexical_token = yylex();
-
-    if (token->lexical_token == 0) { // EOF
-        token->lexeme = NULL;
-        return token;
-    }
-
-    token->lexeme = strndup(yytext, yyleng);
-
-    if (token->lexical_token == ID) {
-        return symtab_intern(token);
-    }
-
-    return token;
-}

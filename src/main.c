@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "tabla_simbolos.h"
-#include "sintactico.h"
-#include "lexico.h"
+#include "dianho.h" // Nombre de nuestro Intérprete.
 
 int main(int argc, char** argv) {
     setvbuf(stdout, NULL, _IONBF, 0);
@@ -14,27 +12,25 @@ int main(int argc, char** argv) {
     }
 
     // Inicialización
-    printf("Preparando el sistema...\n");
-    input_open(argv[1]);
-    symtab_init();
+    // printf("Preparando el sistema...\n");
+    // symtab_init();
 
-    printf("\nEstado inicial de la tabla de símbolos:\n");
-    symtab_print();
+    // printf("\nEstado inicial de la tabla de símbolos:\n");
+    // symtab_print();
 
     // Análisis
 
-    printf("\n---- Inicio Análisis ----\n");
+    printf("\n---- Inicio Intérprete ----\n");
     
-    parse();
+    dianho(); // Iniciamos nuestro interprete.
 
-    printf("\n---- Fin Análisis ----\n");
+    printf("\n---- Fin Intérprete ----\n");
 
-    printf("\nEstado final de la tabla de símbolos:\n");
-    symtab_print();
+    // printf("\nEstado final de la tabla de símbolos:\n");
+    // symtab_print();
 
     // Finalizacion
-    symtab_terminate();
-    input_close();
+    // symtab_terminate();
 
     return 0;
 } 
