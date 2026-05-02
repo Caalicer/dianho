@@ -54,154 +54,39 @@ static inline char* fragments_to_string(const fragments* frags) {
 /**
  * @brief Enumeración de los componentes léxicos.
  */
-typedef enum Token {
+// typedef enum Token {
 
-    // IDENTIFICADORES
-    ID = 300,
+//     // IDENTIFICADORES
+//     ID = 300,
 
-    // ATÓMICOS
-    DDOT,  ///< atómico '..'
-    DDDOT, ///< atómico '...'
-    DE,    ///< atómico '/='
-    SE,    ///< atómico '*='
-    PP,    ///< atómico '++'
-    PE,    ///< atómico '+='
-    MM,    ///< atómico '--'
-    ME,    ///< atómico '-='
-    EE,    ///< atómico '=='
-    EG,    ///< atómico '=>'
-    LE,    ///< atómico '<='
-    LLE,   ///< atómico '<<='
-    LL,    ///< atómico '<<'
-    GE,    ///< atómico '>='
-    GGE,   ///< atómico '>>='
-    GGGE,  ///< atómico '>>>='
-    GG,    ///< atómico '>>'
-    GGG,   ///< atómico '>>>'
+//     // ATÓMICOS
+//     POW,     ///< atómico '**'
+//     DE,      ///< atómico '/='
+//     SE,      ///< atómico '*='
+//     PE,      ///< atómico '+='
+//     ME,      ///< atómico '-='
+//     EE,      ///< atómico '=='
+//     LE,      ///< atómico '<='
+//     GE,      ///< atómico '>='
+//     NE,      ///< atómico '!='
+//     AND,     ///< atómico '&&'
+//     OR,      ///< atómico '||'
+//     LSHIFT,  ///< atómico '<<'
+//     RSHIFT,  ///< atómico '>>'
+//     NEWLINE, ///< atómico '\n'
 
-    // LITERALES
-    INTEGER_LITERAL,
-    BINARY_LITERAL,
-    FLOAT_LITERAL,
-    EXPONENTIAL_LITERAL,
-    STRING_LITERAL,
+//     // LITERALES
+//     INTEGER_LITERAL,
+//     BOOLEAN_LITERAL,
+//     FLOAT_LITERAL,
+//     EXPONENTIAL_LITERAL,
+//     STRING_LITERAL,
 
-    // KEYWORDS
-    ABSTRACT,
-    ALIAS,
-    ALIGN,
-    ASM,
-    ASSERT,
-    AUTO,
-    BODY,
-    BOOL,
-    BREAK,
-    BYTE,
-    CASE,
-    CAST,
-    CATCH,
-    CDOUBLE,
-    CENT,
-    CFLOAT,
-    CHAR,
-    CLASS,
-    CONST,
-    CONTINUE,
-    CREAL,
-    DCHAR,
-    D_DEBUG, // Añadimos una D para no colisionar con DEBUG al compilar
-    DEFAULT,
-    DELEGATE,
-    DELETE,
-    DEPRECATED,
-    DO,
-    DOUBLE,
-    ELSE,
-    ENUM,
-    EXPORT,
-    EXTERN,
-    FALSE,
-    FINAL,
-    FINALLY,
-    FLOAT,
-    FOR,
-    FOREACH,
-    FOREACH_REVERSE,
-    FUNCTION,
-    GOTO,
-    IDOUBLE,
-    IF,
-    IFLOAT,
-    IMMUTABLE,
-    IMPORT,
-    IN,
-    INOUT,
-    INT,
-    INTERFACE,
-    INVARIANT,
-    IREAL,
-    IS,
-    LAZY,
-    LONG,
-    MACRO,
-    MIXIN,
-    MODULE,
-    NEW,
-    NOTHROW,
-    D_NULL, // D_NULL para no colisionar con NULL de stdio.h
-    OUT,
-    OVERRIDE,
-    PACKAGE,
-    PRAGMA,
-    PRIVATE,
-    PROTECTED,
-    PUBLIC,
-    PURE,
-    REAL,
-    REF,
-    RETURN,
-    SCOPE,
-    SHARED,
-    SHORT,
-    STATIC,
-    STRUCT,
-    SUPER,
-    SWITCH,
-    SYNCHRONIZED,
-    TEMPLATE,
-    THIS,
-    THROW,
-    TRUE,
-    TRY,
-    TYPEID,
-    TYPEOF,
-    UBYTE,
-    UCENT,
-    UINT,
-    ULONG,
-    UNION,
-    UNITTEST,
-    USHORT,
-    VERSION,
-    VOID,
-    WCHAR,
-    WHILE,
-    WITH,
-    D__FILE__,          // D delante para no colisionar con __FILE__ de stdio.h
-    __FILE_FULL_PATH__, // D__FILE_FULL_PATH__ para no colisionar con __FILE__
-    D__FUNCTION__,      // de stdio.h
-    D__LINE__,          // D delante para no colisionar con __LINE__ de stdio.h
-    __MODULE__,
-    D__PRETTY_FUNCTION__, // D delante para no colisionar con
-    __GSHARED,            // __PRETTY_FUNCTION__ de stdio.h
-    __PARAMETERS,
-    __RVALUE,
-    __TRAITS,
-    __VECTOR,
+//     // KEYWORDS
 
-    TOKEN_ERROR = 999 ///< Componente léxico asociado a un fallo
+//     TOKEN_ERROR = 999 ///< Componente léxico asociado a un fallo
 
-} Token;
+// } Token;
 
 // COLORES
 #define C_RED "\x1b[31m"
@@ -226,28 +111,28 @@ typedef enum Token {
 #define print_err(COLOR, FMT, ...)                                             \
     fprintf(stderr, COLOR FMT C_RESET, __VA_ARGS__)
 
-static inline const char* lexeme_color(uint16_t tipo) {
+// static inline const char* lexeme_color(uint16_t tipo) {
 
-    if (tipo == ID)
-        return C_BYELLOW;
-    else if (tipo <= GGG)
-        return C_MAGENTA;
-    else if (tipo <= EXPONENTIAL_LITERAL)
-        return C_IBLUE;
-    else if (tipo == STRING_LITERAL)
-        return C_LBLUE;
-    else if (tipo >= ABSTRACT && tipo <= __VECTOR)
-        return C_PINK;
-    else
-        return C_RED;
-}
+//     if (tipo == ID)
+//         return C_BYELLOW;
+//     else if (tipo <= GGG)
+//         return C_MAGENTA;
+//     else if (tipo <= EXPONENTIAL_LITERAL)
+//         return C_IBLUE;
+//     else if (tipo == STRING_LITERAL)
+//         return C_LBLUE;
+//     else if (tipo >= ABSTRACT && tipo <= __VECTOR)
+//         return C_PINK;
+//     else
+//         return C_RED;
+// }
 
-static inline void print_lexeme(lexeme e) {
-    const char* tok_color = lexeme_color(e.lexical_token);
+// static inline void print_lexeme(lexeme e) {
+//     const char* tok_color = lexeme_color(e.lexical_token);
 
-    printf("\t" C_WHITE "<" // apertura en blanco
-           "%s%d" C_RESET    // token con color y reset
-           C_WHITE ", " C_UGREEN "%s" C_RESET // lexeme verde y reset
-           C_WHITE ">" C_RESET "\n", // cierre en blanco + reset
-           tok_color, e.lexical_token, e.lexeme);
-}
+//     printf("\t" C_WHITE "<" // apertura en blanco
+//            "%s%d" C_RESET    // token con color y reset
+//            C_WHITE ", " C_UGREEN "%s" C_RESET // lexeme verde y reset
+//            C_WHITE ">" C_RESET "\n", // cierre en blanco + reset
+//            tok_color, e.lexical_token, e.lexeme);
+// }

@@ -93,6 +93,7 @@ Los operadores no son expresiones como tal, pero viven dentro de estas. Tienen u
     - **Lógicos**: se aplican sobre expresiones booleanos y siempre producen un resultado booleano
         - `exp && exp` AND
         - `exp || exp` OR
+        - `! exp` NOT
     - **Bitwise**: se aplican únicamente sobre `int` (interpretados como binarios) y producen un entero (interpretado como binario)
         - `&`   AND
         - `|`   OR

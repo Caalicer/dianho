@@ -7,23 +7,23 @@
 
 void parse() {
 
-    lexeme* token;
-    bool continue_parsing = true;
+    // lexeme* token;
+    // bool continue_parsing = true;
 
-    while (continue_parsing) {
+    // while (continue_parsing) {
 
-        token = next_token();
+    //     token = next_token();
 
-        if (token->lexical_token == 0) { // EOF
-            continue_parsing = false;
-            free (token->lexeme);
-            free(token);
-        } else {
-            print_lexeme(*token);
-            if (symtab_lookup(token) == NULL) {
-                free(token->lexeme);
-                free(token);
-            }
-        }
-    }
+    //     if (token->lexical_token == 0) { // EOF
+    //         continue_parsing = false;
+    //         free (token->lexeme);
+    //         free(token);
+    //     } else {
+    //         //print_lexeme(*token);
+    //         if (symtab_lookup(token) == NULL) {
+    //             free(token->lexeme);
+    //             free(token);
+    //         }
+    //     }
+    // }
 }

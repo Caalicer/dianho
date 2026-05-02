@@ -19,7 +19,7 @@ void _free_element(element* e) {
  * @brief Imprime un elemento (lexema) del AVL.
  * @param e Elemento a imprimir
  */
-void _print_element(element* e) { print_lexeme((lexeme)*e); }
+void _print_element(element* e) { } //print_lexeme((lexeme)*e); }
 
 /**
  * @brief Compara dos elementos (lexemas) del AVL.
@@ -68,23 +68,23 @@ void symtab_init() {
 
     table = avl_create(_elemcmp, _free_element);
 
-    static lexeme keywords[] = {
-        {IMPORT, "import"},   //
-        {DOUBLE, "double"},   //
-        {VOID, "void"},       //
-        {INT, "int"},         //
-        {WHILE, "while"},     //
-        {FOREACH, "foreach"}, //
-        {CAST, "cast"},       //
-        {RETURN, "return"}    //
-    };
+    // static lexeme keywords[] = {
+    //     {IMPORT, "import"},   //
+    //     {DOUBLE, "double"},   //
+    //     {VOID, "void"},       //
+    //     {INT, "int"},         //
+    //     {WHILE, "while"},     //
+    //     {FOREACH, "foreach"}, //
+    //     {CAST, "cast"},       //
+    //     {RETURN, "return"}    //
+    // };
 
-    for (size_t i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
-        lexeme* kw = malloc(sizeof(lexeme));
-        kw->lexical_token = keywords[i].lexical_token;
-        kw->lexeme = strdup(keywords[i].lexeme);
-        avl_insert(table, kw);
-    }
+    // for (size_t i = 0; i < sizeof(keywords) / sizeof(keywords[0]); i++) {
+    //     lexeme* kw = malloc(sizeof(lexeme));
+    //     kw->lexical_token = keywords[i].lexical_token;
+    //     kw->lexeme = strdup(keywords[i].lexeme);
+    //     avl_insert(table, kw);
+    // }
 }
 
 void symtab_terminate() {
