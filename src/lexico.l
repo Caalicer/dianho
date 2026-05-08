@@ -1,5 +1,6 @@
 %{
     // Importamos as librerías necesarias
+    #include <ctype.h>
     #include "lexico.h"
     #include "tabla_simbolos.h"
     #include "errores.h"
@@ -106,14 +107,13 @@ Comment                {LineComment}
 
 {SINGLE_OPERATOR}   {return (int) *yytext;}
 
-{IDENTIFIER}        { yylval.str = strdup(yytext); return ID; }
+{EXPONENTIAL_FLOAT} { yylval.fval = atof(yytext); return EXPONENTIAL_LITERAL; }
+{DECIMAL_FLOAT}     { yylval.fval = atof(yytext); return FLOAT_LITERAL; }
+{DECIMAL_INTEGER}   { yylval.ival = atoll(yytext); return INTEGER_LITERAL; }
+{BOOLEAN}           { yylval.bval = (tolower(yytext[0]) == 't'); return BOOLEAN_LITERAL; }
+{QUOTED_STRING}     { yylval.sval = strdup(yytext); return STRING_LITERAL; }
 
-{EXPONENTIAL_FLOAT} { yylval.str = strdup(yytext); return EXPONENTIAL_LITERAL; }
-{DECIMAL_FLOAT}     { yylval.str = strdup(yytext); return FLOAT_LITERAL; }
-{DECIMAL_INTEGER}   { yylval.str = strdup(yytext); return INTEGER_LITERAL; }
-{BOOLEAN}           { yylval.str = strdup(yytext); return BOOLEAN_LITERAL; }
-{QUOTED_STRING}     { yylval.str = strdup(yytext); return STRING_LITERAL; }
-
+{IDENTIFIER}        { yylval.sval = strdup(yytext); return ID; }
 \n                  { return NEWLINE; }
 
 [ \t\r]+      { }

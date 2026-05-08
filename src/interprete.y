@@ -2,20 +2,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "definiciones.h"
 
 int yylex(void);
 void yyerror(const char *s);
 %}
 
+
 %union {
-    char *str;
+    long long ival;
+    double    fval;
+    int       bval;
+    char     *sval;
 }
 
-/* Tokens con valor string */
-%token <str> ID
-%token <str> EXPONENTIAL_LITERAL FLOAT_LITERAL INTEGER_LITERAL
-%token <str> BOOLEAN_LITERAL STRING_LITERAL
+%token <ival> INTEGER_LITERAL
+%token <fval> FLOAT_LITERAL EXPONENTIAL_LITERAL
+%token <bval> BOOLEAN_LITERAL
+%token <sval> STRING_LITERAL ID
+
+
+%type <fval> exp
 
 /* Operadores compuestos con valor string */
 %token <str> PE ME SE DE GE LE EE NE OR AND LSHIFT RSHIFT POW
@@ -23,79 +31,64 @@ void yyerror(const char *s);
 /* Tokens sin valor semántico */
 %token NEWLINE
 
-%type <str> exp token single_op
-%destructor { free($$); } <str>
+
+
+%left OR
+%left AND
+%left '|'
+%left '^'
+%left '&'
+%left EE NE
+%left '<' '>' LE GE
+%left LSHIFT RSHIFT
+%left '+' '-'
+%left '*' '/' '%'
+%right POW
+%right UMINUS '!'
+
 
 %%
 
 input:
-    %empty { printf("Welcome to DIANHO! Type your commands below:\n> "); }
+    %empty { printf("> "); }
 |   input line
 ;
 
 line:
-    NEWLINE      { printf("> "); }   
-|   exp NEWLINE  { printf("echo: %s\n> ", $1); free($1); }
+    NEWLINE
+|   exp NEWLINE  { printf("= %g\n> ", $1); }
 ;
 
 exp:
-    token
-    {
-        $$ = $1;
-    }
-|   exp token
-    {
-        $$ = malloc(strlen($1) + strlen($2) + 2);
-        sprintf($$, "%s %s", $1, $2);
-        free($1);
-        free($2);
-    }
-;
-
-token:
-    ID                  { $$ = $1; }
-|   EXPONENTIAL_LITERAL { $$ = $1; }
-|   FLOAT_LITERAL       { $$ = $1; }
-|   INTEGER_LITERAL     { $$ = $1; }
-|   BOOLEAN_LITERAL     { $$ = $1; }
-|   STRING_LITERAL      { $$ = $1; }
-|   PE                  { $$ = $1; }
-|   ME                  { $$ = $1; }
-|   SE                  { $$ = $1; }
-|   DE                  { $$ = $1; }
-|   GE                  { $$ = $1; }
-|   LE                  { $$ = $1; }
-|   EE                  { $$ = $1; }
-|   NE                  { $$ = $1; }
-|   OR                  { $$ = $1; }
-|   AND                 { $$ = $1; }
-|   LSHIFT              { $$ = $1; }
-|   RSHIFT              { $$ = $1; }
-|   POW                 { $$ = $1; }
-|   single_op
-;
-
-single_op:
-    '+'  { $$ = strdup("+"); }
-|   '-'  { $$ = strdup("-"); }
-|   '*'  { $$ = strdup("*"); }
-|   '/'  { $$ = strdup("/"); }
-|   '%'  { $$ = strdup("%"); }
-|   '='  { $$ = strdup("="); }
-|   '>'  { $$ = strdup(">"); }
-|   '<'  { $$ = strdup("<"); }
-|   '!'  { $$ = strdup("!"); }
-|   '&'  { $$ = strdup("&"); }
-|   '|'  { $$ = strdup("|"); }
-|   '^'  { $$ = strdup("^"); }
-|   ','  { $$ = strdup(","); }
-|   ';'  { $$ = strdup(";"); }
-|   '('  { $$ = strdup("("); }
-|   ')'  { $$ = strdup(")"); }
+    INTEGER_LITERAL        { $$ = (double)$1;          }
+|   FLOAT_LITERAL          { $$ = $1;                  }
+|   EXPONENTIAL_LITERAL    { $$ = $1;                  }
+|   '(' exp ')'            { $$ = $2;                  }
+|   '-' exp %prec UMINUS   { $$ = -$2;                 }
+|   exp '+' exp            { $$ = $1 + $3;             }
+|   exp '-' exp            { $$ = $1 - $3;             }
+|   exp '*' exp            { $$ = $1 * $3;             }
+|   exp '/' exp            { $$ = $1 / $3;             }
+|   exp '%' exp            { $$ = (long long)$1 % (long long)$3; }
+|   exp POW exp            { $$ = pow($1, $3);         }
+|   exp '>' exp            { $$ = $1 > $3;             }
+|   exp '<' exp            { $$ = $1 < $3;             }
+|   exp GE  exp            { $$ = $1 >= $3;            }
+|   exp LE  exp            { $$ = $1 <= $3;            }
+|   exp EE  exp            { $$ = $1 == $3;            }
+|   exp NE  exp            { $$ = $1 != $3;            }
+|   exp AND exp            { $$ = $1 && $3;            }
+|   exp OR  exp            { $$ = $1 || $3;            }
+|   exp '&' exp            { $$ = (long long)$1 & (long long)$3; }
+|   exp '|' exp            { $$ = (long long)$1 | (long long)$3; }
+|   exp '^' exp            { $$ = (long long)$1 ^ (long long)$3; }
+|   exp LSHIFT exp         { $$ = (long long)$1 << (long long)$3; }
+|   exp RSHIFT exp         { $$ = (long long)$1 >> (long long)$3; }
 ;
 
 %%
 
 void yyerror(const char *s) {
     fprintf(stderr, "Error: %s\n", s);
+    yyparse(); // Reiniciar el parser para continuar leyendo
 }

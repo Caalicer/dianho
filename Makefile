@@ -57,7 +57,7 @@ BISON	  := bison
 
 CFLAGS    := -Wall -I$(INC_DIR)
 DFLAGS    := -Wextra -g -DDEBUG -DWARNING
-LDFLAGS   := 
+LDFLAGS   := -lm
 
 L_IN	  := $(SRC_DIR)/lexico.l
 L_TARGET  := $(SRC_DIR)/lex.yy.c

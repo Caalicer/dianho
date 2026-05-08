@@ -386,15 +386,15 @@ struct yy_trans_info
 static const flex_int16_t yy_accept[102] =
     {   0,
         0,    0,    0,    0,   26,   24,   23,   22,   15,   24,
-       15,   15,   15,   15,   15,   24,   15,   19,   19,   15,
-       15,   15,   16,   16,   16,   15,   25,   23,   10,    0,
-       21,    0,   11,    2,    5,    3,    4,   18,    1,    6,
-       18,    0,    0,   19,   19,   19,   19,   19,   13,    8,
-        9,    7,   14,   16,   16,   16,   12,   21,    0,    0,
-        0,    0,    0,   18,    0,    1,   18,    0,    0,    0,
-       17,    0,   19,   16,   16,    0,    0,    0,    0,    0,
-       17,    0,   18,   17,   17,   16,   16,    0,    0,    0,
-       17,   17,    0,    0,    0,    0,    0,    0,    0,    0,
+       15,   15,   15,   15,   15,   24,   15,   18,   18,   15,
+       15,   15,   21,   21,   21,   15,   25,   23,   10,    0,
+       20,    0,   11,    2,    5,    3,    4,   17,    1,    6,
+       17,    0,    0,   18,   18,   18,   18,   18,   13,    8,
+        9,    7,   14,   21,   21,   21,   12,   20,    0,    0,
+        0,    0,    0,   17,    0,    1,   17,    0,    0,    0,
+       16,    0,   18,   21,   21,    0,    0,    0,    0,    0,
+       16,    0,   17,   16,   16,   21,   19,    0,    0,    0,
+       16,   16,    0,    0,    0,    0,    0,    0,    0,    0,
 
         0
     } ;
@@ -587,11 +587,12 @@ char *yytext;
 #line 1 "src/lexico.l"
 #line 2 "src/lexico.l"
     // Importamos as librerías necesarias
+    #include <ctype.h>
     #include "lexico.h"
     #include "tabla_simbolos.h"
     #include "errores.h"
     #include "interprete.tab.h"
-#line 595 "src/lex.yy.c"
+#line 596 "src/lex.yy.c"
 
 #define YY_NO_INPUT 1
 /* GENERALES*/
@@ -608,7 +609,7 @@ char *yytext;
 /* Limitamos comentarios a una linea */
 /* BlockCommentContent    ([^*\n]|\ *[^/\n])* */
 /* BlockComment           "/ *"{BlockCommentContent}"*/
-#line 612 "src/lex.yy.c"
+#line 613 "src/lex.yy.c"
 
 #define INITIAL 0
 #define nesting 1
@@ -824,10 +825,10 @@ YY_DECL
 		}
 
 	{
-#line 87 "src/lexico.l"
+#line 88 "src/lexico.l"
 
 
-#line 831 "src/lex.yy.c"
+#line 832 "src/lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -896,108 +897,108 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 89 "src/lexico.l"
+#line 90 "src/lexico.l"
 /* Ignorar comentarios */
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 93 "src/lexico.l"
+#line 94 "src/lexico.l"
 { return POW; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 94 "src/lexico.l"
+#line 95 "src/lexico.l"
 { return PE; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 95 "src/lexico.l"
+#line 96 "src/lexico.l"
 { return ME; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 96 "src/lexico.l"
+#line 97 "src/lexico.l"
 { return SE; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 97 "src/lexico.l"
+#line 98 "src/lexico.l"
 { return DE; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 98 "src/lexico.l"
+#line 99 "src/lexico.l"
 { return GE; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 99 "src/lexico.l"
+#line 100 "src/lexico.l"
 { return LE; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 100 "src/lexico.l"
+#line 101 "src/lexico.l"
 { return EE; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 101 "src/lexico.l"
+#line 102 "src/lexico.l"
 { return NE; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 102 "src/lexico.l"
+#line 103 "src/lexico.l"
 { return AND; } 
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 103 "src/lexico.l"
+#line 104 "src/lexico.l"
 { return OR; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 104 "src/lexico.l"
+#line 105 "src/lexico.l"
 { return LSHIFT; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 105 "src/lexico.l"
+#line 106 "src/lexico.l"
 { return RSHIFT; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 107 "src/lexico.l"
+#line 108 "src/lexico.l"
 {return (int) *yytext;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 109 "src/lexico.l"
-{ yylval.str = strdup(yytext); return ID; }
+#line 110 "src/lexico.l"
+{ yylval.fval = atof(yytext); return EXPONENTIAL_LITERAL; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 111 "src/lexico.l"
-{ yylval.str = strdup(yytext); return EXPONENTIAL_LITERAL; }
+{ yylval.fval = atof(yytext); return FLOAT_LITERAL; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 112 "src/lexico.l"
-{ yylval.str = strdup(yytext); return FLOAT_LITERAL; }
+{ yylval.ival = atoll(yytext); return INTEGER_LITERAL; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 113 "src/lexico.l"
-{ yylval.str = strdup(yytext); return INTEGER_LITERAL; }
+{ yylval.bval = (tolower(yytext[0]) == 't'); return BOOLEAN_LITERAL; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 114 "src/lexico.l"
-{ yylval.str = strdup(yytext); return BOOLEAN_LITERAL; }
+{ yylval.sval = strdup(yytext); return STRING_LITERAL; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 115 "src/lexico.l"
-{ yylval.str = strdup(yytext); return STRING_LITERAL; }
+#line 116 "src/lexico.l"
+{ yylval.sval = strdup(yytext); return ID; }
 	YY_BREAK
 case 22:
 /* rule 22 can match eol */
@@ -1025,7 +1026,7 @@ YY_RULE_SETUP
 #line 125 "src/lexico.l"
 ECHO;
 	YY_BREAK
-#line 1029 "src/lex.yy.c"
+#line 1030 "src/lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{

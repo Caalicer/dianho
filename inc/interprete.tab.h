@@ -54,12 +54,12 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    ID = 258,                      /* ID  */
-    EXPONENTIAL_LITERAL = 259,     /* EXPONENTIAL_LITERAL  */
-    FLOAT_LITERAL = 260,           /* FLOAT_LITERAL  */
-    INTEGER_LITERAL = 261,         /* INTEGER_LITERAL  */
-    BOOLEAN_LITERAL = 262,         /* BOOLEAN_LITERAL  */
-    STRING_LITERAL = 263,          /* STRING_LITERAL  */
+    INTEGER_LITERAL = 258,         /* INTEGER_LITERAL  */
+    FLOAT_LITERAL = 259,           /* FLOAT_LITERAL  */
+    EXPONENTIAL_LITERAL = 260,     /* EXPONENTIAL_LITERAL  */
+    BOOLEAN_LITERAL = 261,         /* BOOLEAN_LITERAL  */
+    STRING_LITERAL = 262,          /* STRING_LITERAL  */
+    ID = 263,                      /* ID  */
     PE = 264,                      /* PE  */
     ME = 265,                      /* ME  */
     SE = 266,                      /* SE  */
@@ -73,7 +73,8 @@ extern int yydebug;
     LSHIFT = 274,                  /* LSHIFT  */
     RSHIFT = 275,                  /* RSHIFT  */
     POW = 276,                     /* POW  */
-    NEWLINE = 277                  /* NEWLINE  */
+    NEWLINE = 277,                 /* NEWLINE  */
+    UMINUS = 278                   /* UMINUS  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -82,11 +83,14 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 11 "src/interprete.y"
+#line 13 "src/interprete.y"
 
-    char *str;
+    long long ival;
+    double    fval;
+    int       bval;
+    char     *sval;
 
-#line 90 "inc/interprete.tab.h"
+#line 94 "inc/interprete.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
