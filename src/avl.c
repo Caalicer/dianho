@@ -301,13 +301,6 @@ element* avl_search(const AVLTree* tree, element* data) {
     return found ? found->data : NULL;
 }
 
-element* avl_fragment_search(const AVLTree* tree, const fragments* frag,
-                             int (*fragcmp)(const void* frag,
-                                            const element* e)) {
-    node* found = _search(tree, (void *)frag, fragcmp, NULL);
-    return found ? found->data : NULL;
-}
-
 static node* _find_min(node* n) {
     if (!n) {
         return NULL;

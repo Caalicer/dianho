@@ -15,7 +15,7 @@
  * >     - Valor *positivo* si e1 es mayor que e2.
  **/
 
-#include "definiciones.h"
+#include "symbol.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,16 +26,10 @@
 #define POSTORDER 2
 
 /**
- * @typedef key
- * @brief Tipo de clave usada para insertar en el AVLTree.
- **/
-typedef char* key;
-
-/**
  * @typedef element
  * @brief Tipo de información a almacenar en los nodos.
  **/
-typedef lexeme element;
+typedef symbol element;
 
 /**
  * @struct AVLTree
@@ -85,17 +79,6 @@ int avl_remove(AVLTree* tree, element data);
  **/
 element* avl_search(const AVLTree* tree, element* data);
 
-/**
- * @brief Busca mediante los fragmentos de una clave en el Árbol AVL
- *
- * @param tree Puntero al AVLTree en el que se realizará la búsqueda.
- * @param frag Fragmentos a buscar
- * @param fragcmp Función de comparación de los fragmentos con un element
- * @return element*
- */
-element* avl_fragment_search(const AVLTree* tree, const fragments* frag,
-                             int (*fragcmp)(const void* frag,
-                                            const element* e));
 
 /**
  * @brief Obtiene el número de nodos en el Árbol AVL.

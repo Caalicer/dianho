@@ -165,6 +165,7 @@ Para gestionar el entorno del intérprete existen disponibles una serie de coman
 - `:restart()` Igual que `reset` pero descarga también librerías.
 - `:env()` Lista las variables y funciones del entorno.
 - `:libs()` Lista las librerías cargadas.
+- `:load("fichero")` Lee una una ruta relativa en el sistema, carga el fichero y ejecuta todas las instrucciones que hay dentro, menos las de gestión del entorno. Esto es para evitar cargas recursivas, etc.
 
 ### Utilidades
 
