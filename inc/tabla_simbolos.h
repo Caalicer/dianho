@@ -4,12 +4,12 @@
  * @file tabla_simbolos.h
  * @brief Definición de las funciones públicas para la Tabla de Símbolos.
  *
- * Proporciona funciones para la manipulación de una Tabla de Símbolos.
+ * Proporciona funciones para la manipulación de una Tabla de Símbolos a través
+ * de parejas key (char*) value (symbol*).
  *
- * - Manipulación de la Tabla de Símbolos
  **/
 
-#include "definiciones.h"
+#include "symbol.h"
 
 /**
  * @brief Inicializa la Tabla de Símbolos.
@@ -32,33 +32,51 @@ void symtab_init();
 void symtab_terminate();
 
 /**
- * @brief Interna un lexema en la Tabla de Símbolos. Busca el elemento en la
- * Tabla de Símbolos. Si existe, devuelve un puntero al elemento existente. Si
- * no existe, lo inserta y devuelve un puntero al nuevo elemento.
+ * @brief Inserta en la Tabla de Símbolos un nuevo símbolo asociado a un nombre.
  *
- * @param lexeme Lexema a internar.
- * @return lexeme* Puntero al elemento internado en la Tabla de Símbolos.
- * @retval NULL Hubo un error en la inserción.
+ * En caso de existir un símbolo con el mismo nombre (colisión):
+ * - Constante, librería o una función cargada dinámicamente: fallo.
+ * - Variable o función definida por el usuario: se reemplaza el valor.
+ *
+ * @param key Nombre por el que se guardará el símbolo en la Tabla de Símbolos.
+ * @param sym Puntero al símbolo a insertar.
+ * @return int Código de error.
+ * @retval 0 Éxito.
+ * @retval 1 Error.
  */
-lexeme* symtab_intern(lexeme* lexeme);
+int symtab_set(const char* key, symbol* sym);
 
 /**
- * @brief Busca mediante los fragmentos de un lexema en la Tabla de Simbolos.
+ * @brief Busca un símbolo en la Tabla de símbolos por su nombre.
  *
- * @param lexeme Lexema a buscar.
- * @return Puntero al lexema encontrado, o NULL si no se encuentra.
+ * @param key nombre del símbolo a buscar.
+ * @return symbol* Puntero al símbolo encontrado. NULL en caso contrario.
  */
-lexeme* symtab_fragments_lookup(const fragments* token_fragments);
+symbol* symtab_get(const char* key);
 
 /**
- * @brief Busca si un lexema está en la tabla de símbolos
- * 
- * @param lexeme lexema a buscar
- * @return lexeme* Puntero al lexema encontrado. NULL en caso contrario.
+ * @brief Borra todas las variables y funciones definidas por el usuario en la
+ * sesión. No se ven afectadas las librerías abiertas ni las funciones cargadas
+ * dinámicamente.
+ *
+ * @return int Código de error.
+ * @retval 0 Éxito.
+ * @retval 1 Error.
  */
-lexeme* symtab_lookup(lexeme* lexeme);
+int symtab_reset(void);
 
 /**
  * @brief Imprime el contenido completo de la Tabla de Símbolos.
  */
 void symtab_print();
+
+/**
+ * @brief Imprime todas las variables, constantes y funciones  registradas en la
+ * tabla de símbolos.
+ */
+void symtab_print_env(void);
+
+/**
+ * @brief Imprime todas las librerías abiertas.
+ */
+void symtab_print_libs(void);
