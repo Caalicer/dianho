@@ -11,8 +11,6 @@
  */
 struct ast_node {
     ast_node_type type; ///< Tag del tipo de nodo
-    int line;           ///< Línea en la fuente donde se encuentra el nodo
-    int column;         ///< Columna en la fuente donde se encuentra el nodo
     union {
         value literal;    ///< Valor del nodo
         char* identifier; ///< Nombre del identificador
@@ -38,20 +36,18 @@ struct ast_node {
     } data;
 };
 
-static ast_node* alloc_node(ast_node_type type, int line, int column) {
+static ast_node* alloc_node(ast_node_type type) {
     ast_node* node = (ast_node*)calloc(1, sizeof(ast_node));
     if (!node) {
-        // Majar error de memoria
+        // Manejar error de memoria
         return NULL;
     }
     node->type = type;
-    node->line = line;
-    node->column = column;
     return node;
 }
 
-ast_node* ast_new_literal(value v, int line, int column) {
-    ast_node* node = alloc_node(AST_LITERAL, line, column);
+ast_node* ast_new_literal(value v) {
+    ast_node* node = alloc_node(AST_LITERAL);
     if (!node) {
         value_free(&v);
         return NULL;
@@ -60,8 +56,8 @@ ast_node* ast_new_literal(value v, int line, int column) {
     return node;
 }
 
-ast_node* ast_new_identifier(char* name, int line, int column) {
-    ast_node* node = alloc_node(AST_IDENTIFIER, line, column);
+ast_node* ast_new_identifier(char* name) {
+    ast_node* node = alloc_node(AST_IDENTIFIER);
     if (!node) {
         free(name);
         return NULL;
@@ -70,9 +66,8 @@ ast_node* ast_new_identifier(char* name, int line, int column) {
     return node;
 }
 
-ast_node* ast_new_unary(ast_unary_op op, ast_node* operand, int line,
-                        int column) {
-    ast_node* node = alloc_node(AST_UNARY, line, column);
+ast_node* ast_new_unary(ast_unary_op op, ast_node* operand) {
+    ast_node* node = alloc_node(AST_UNARY);
     if (!node) {
         ast_free(operand);
         return NULL;
@@ -82,9 +77,8 @@ ast_node* ast_new_unary(ast_unary_op op, ast_node* operand, int line,
     return node;
 }
 
-ast_node* ast_new_binary(ast_binary_op op, ast_node* left, ast_node* right,
-                         int line, int column) {
-    ast_node* node = alloc_node(AST_BINARY, line, column);
+ast_node* ast_new_binary(ast_binary_op op, ast_node* left, ast_node* right) {
+    ast_node* node = alloc_node(AST_BINARY);
     if (!node) {
         ast_free(left);
         ast_free(right);
@@ -96,14 +90,13 @@ ast_node* ast_new_binary(ast_binary_op op, ast_node* left, ast_node* right,
     return node;
 }
 
-ast_node* ast_new_call(char* name, ast_node** args, size_t argc, int line,
-                       int column) {
-    ast_node* node = alloc_node(AST_CALL, line, column);
+ast_node* ast_new_call(char* name, ast_node** args, size_t arity) {
+    ast_node* node = alloc_node(AST_CALL);
     size_t i;
     if (!node) {
         free(name);
         if (args) {
-            for (i = 0; i < argc; ++i) {
+            for (i = 0; i < arity; ++i) {
                 ast_free(args[i]);
             }
         }
@@ -112,22 +105,21 @@ ast_node* ast_new_call(char* name, ast_node** args, size_t argc, int line,
     }
     node->data.call.name = name;
     node->data.call.args = args;
-    node->data.call.arity = argc;
+    node->data.call.arity = arity;
     return node;
 }
 
-ast_node* ast_new_if(ast_node* cond, ast_node* then_branch,
-                     ast_node* else_branch, int line, int column) {
-    ast_node* node = alloc_node(AST_IF, line, column);
+ast_node* ast_new_if(ast_node* cond, ast_node* then_br, ast_node* else_br) {
+    ast_node* node = alloc_node(AST_IF);
     if (!node) {
         ast_free(cond);
-        ast_free(then_branch);
-        ast_free(else_branch);
+        ast_free(then_br);
+        ast_free(else_br);
         return NULL;
     }
     node->data.if_expr.cond = cond;
-    node->data.if_expr.then_branch = then_branch;
-    node->data.if_expr.else_branch = else_branch;
+    node->data.if_expr.then_branch = then_br;
+    node->data.if_expr.else_branch = else_br;
     return node;
 }
 

@@ -44,85 +44,69 @@ typedef enum {
 
 /**
  * @brief Crea un nuevo nodo literal
- * 
+ *
  * @param v Valor en tiempo de ejecución
- * @param line Línea en la fuente donde se encuentra el nodo
- * @param column Columna en la fuente donde se encuentra el nodo
- * @return ast_node* 
+ * @return ast_node*
  */
-ast_node* ast_new_literal(value v, int line, int column);
+ast_node* ast_new_literal(value v);
 
 /**
  * @brief Crea un nuevo nodo identificador
- * 
+ *
  * @param name Nombre del identificador
- * @param line Línea en la fuente donde se encuentra el nodo
- * @param column Columna en la fuente donde se encuentra el nodo
- * @return ast_node* 
+ * @return ast_node*
  */
-ast_node* ast_new_identifier(char* name, int line, int column);
+ast_node* ast_new_identifier(char* name);
 
 /**
  * @brief Crea un nuevo nodo unario
- * 
+ *
  * @param op Operación unaria
  * @param operand Operando
- * @param line Línea en la fuente donde se encuentra el nodo
- * @param column Columna en la fuente donde se encuentra el nodo
- * @return ast_node* 
+ * @return ast_node*
  */
-ast_node* ast_new_unary(ast_unary_op op, ast_node* operand, int line,
-                        int column);
+ast_node* ast_new_unary(ast_unary_op op, ast_node* operand);
 
 /**
  * @brief Crea un nuevo nodo binario
- * 
+ *
  * @param op Operación binaria
  * @param left Operando izquierdo
  * @param right Operando derecho
- * @param line Línea en la fuente donde se encuentra el nodo
- * @param column Columna en la fuente donde se encuentra el nodo
- * @return ast_node* 
+ * @return ast_node*
  */
-ast_node* ast_new_binary(ast_binary_op op, ast_node* left, ast_node* right,
-                         int line, int column);
+ast_node* ast_new_binary(ast_binary_op op, ast_node* left, ast_node* right);
 
 /**
  * @brief Crea un nuevo nodo de llamada a función
- * 
+ *
  * @param name Nombre de la función
  * @param args Argumentos de la llamada
- * @param argc Número de argumentos
- * @param line Línea en la fuente donde se encuentra el nodo
- * @param column Columna en la fuente donde se encuentra el nodo
- * @return ast_node* 
+ * @param arity Aridad de la función
+ * @return ast_node*
  */
-ast_node* ast_new_call(char* name, ast_node** args, size_t argc, int line,
-                       int column);
+ast_node* ast_new_call(char* name, ast_node** args, size_t arity);
 
 /**
  * @brief Crea un nuevo nodo if
- * 
+ *
  * @param cond Condición
  * @param then_branch Rama then
  * @param else_branch Rama else
- * @param line Línea en la fuente donde se encuentra el nodo
- * @param column Columna en la fuente donde se encuentra el nodo
- * @return ast_node* 
+ * @return ast_node*
  */
-ast_node* ast_new_if(ast_node* cond, ast_node* then_branch,
-                     ast_node* else_branch, int line, int column);
+ast_node* ast_new_if(ast_node* cond, ast_node* then_br, ast_node* else_br);
 
 /**
  * @brief Libera la memoria asociada a un nodo AST y sus hijos.
- * 
+ *
  * @param node Referenia al nodo AST a liberar.
  */
 void ast_free(ast_node* node);
 
 /**
  * @brief Evalúa un nodo AST y almacena el resultado en un valor.
- * 
+ *
  * @param node Nodo AST a evaluar.
  * @param out Puntero al valor donde almacenar el resultado.
  * @param env Entorno de evaluación.

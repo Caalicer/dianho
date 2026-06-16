@@ -1,21 +1,9 @@
 #pragma once
 
-/**
- * @file errores.h
- * @brief Definición de las funciones públicas para el manejo de errores.
- *
- * Se usa un sistema de códigos y mensajes asociados, marcando la línea del
- * error, el tipo del mismo y un breve mensaje descriptivo.
- **/
+#include <stddef.h>
 
-#include <stdio.h>
-#include "definiciones.h"
-
-/**
- * @enum error_code
- * @brief Códigos de error para identificar diferentes tipos de errores.
- */
-typedef enum {
+/// @brief Enumeración de los códigos de error del intérprete.
+typedef enum { // To be Modified
     UNKNOWN_SYMBOL,
     LEXEME_TOO_LONG,
     NOT_INITIALIZED,
@@ -31,45 +19,52 @@ typedef enum {
     ERROR_COUNT
 } error_code;
 
-typedef enum { MALFORMED_ATOMIC, MALFORMED_NUMBER, WARNING_COUNT } warning_code;
+/// @brief Enumeración de los códigos de warning del intérprete.
+typedef enum { // TO be modified
+    WARN_VARIABLE_REDEFINED,
+    WARN_IMPLICIT_CONVERSION,
+    WARN_COUNT
+} warning_code;
+
+/// @brief Estructura que representa la ubicación de un error o warning en el
+///        código fuente.
+typedef struct {
+    int line;
+    int col;
+    int len;
+    char src_line[256];
+} source_loc;
+
+/// @brief Ubicación actual en el código fuente.
+///        Actualizada por Flex en cada token. Leída internamente por emit_*.
+extern source_loc current_loc;
 
 /**
- * @brief Mensajes de error correspondientes a cada código.
+ * @brief Emite un warning e imprime. La ejecución continúa siempre.
+ *
+ * @param code     Código de warning
+ * @param context  Información dinámica adicional, NULL si no aplica.
+ * @param hint     Sobreescribe el hint por defecto, NULL para usar el interno.
  */
-static const char* errors[ERROR_COUNT] = {
-    [UNKNOWN_SYMBOL] = "USYM: Símbolo no soportado.",
-    [LEXEME_TOO_LONG] = "LTL: Lexema demasiado largo.",
-    [NOT_INITIALIZED] = "INTERNO: uso de un componente no inicializado.",
-    [MEMORY_ALLOCATION_ERROR] =
-        "INTERNO: asignación de memoria con malloc fallida.",
-    [UNFINISHED_BCOMMENT] = "UFC: Comentario de bloque no terminado.",
-    [UNFINISHED_NCOMMENT] = "UFN: Comentario anidable no terminado.",
-    [UNFINISHED_STRING] = "UFS: Cadena no terminada.",
-    [DFA_INIT] = "INTERNO: DFA en estado inicial",
-    [MALFORMED_BIN] = "MFB: Número binario mal formado.",
-    [MALFORMED_EXP] = "MFE: Número con exponente mal formado.", 
-    [FILE_OPEN_ERROR] = "FOPEN: No se pudo abrir el archivo.",
-    [FILE_BEGIN] = "FBEGIN: No se puede retroceder, comienzo de fichero."};
-
-static const char* warnings[WARNING_COUNT] = {
-    [MALFORMED_ATOMIC] = "MFA: Posible operador o delimitador mal formado.\n\t "
-                         "Falsos positivos como (( ))",
-    [MALFORMED_NUMBER] = "MFN: Posible número mal formado.\n\t Falsos "
-                         "positivos como 1+1 (1 + 1)"};
+void emit_warning(error_code code, const char* context, const char* hint);
 
 /**
- * @brief Emite un mensaje de error basado en el código de error proporcionado.
- * @param line El número de línea donde ocurrió el error.
- * @param code El código de error que identifica el tipo de error.
+ * @brief Emite un error e imprime. Devuelve 0 para que el caller pueda hacer
+ *        return emit_error(...) y señalizar fallo al evaluador.
+ *
+ * @param code     Código de error
+ * @param context  Información dinámica adicional, NULL si no aplica.
+ * @param hint     Sobreescribe el hint por defecto, NULL para usar el interno.
+ * @return int     Siempre devuelve 1 para indicar fallo
  */
-static inline void emit_error(int line, error_code code) {
-    if (code < 0 || code >= ERROR_COUNT || errors[code] == NULL) {
-        print_err(C_RED, "\n[ERROR] Línea %d: error desconocido.\n\n", line);        return;
-    }
-    print_err(C_RED, "\n[ERROR] Línea %d %s\n\n", line, errors[code]);}
+int emit_error(error_code code, const char* context, const char* hint);
 
-static inline void emit_warning(int line, warning_code code) {
-    if (code < 0 || code >= WARNING_COUNT || warnings[code] == NULL) {
-        print_err(C_ORANGE, "\n[WARNING] Línea %d: advertencia desconocida.\n\n", line);        return;
-    }
-    print_err(C_ORANGE, "\n[WARNING] Línea %d %s\n\n", line, warnings[code]);}
+/**
+ * @brief Emite un error irrecuperable, imprime y llama exit() para finalizar el
+ *        intérprete.
+ *
+ * @param context  Información dinámica adicional, NULL si no aplica.
+ * @param hint     Sobreescribe el hint por defecto, NULL para usar el interno.
+ */
+_Noreturn void emit_fatal(error_code code, const char* context,
+                          const char* hint);
