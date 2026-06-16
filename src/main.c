@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "dianho.h" // Nombre de nuestro Intérprete.
+#include "dianho.h"
+#include "tabla_simbolos.h"
 
 int main(int argc, char** argv) {
     setvbuf(stdout, NULL, _IONBF, 0);
@@ -13,7 +14,7 @@ int main(int argc, char** argv) {
 
     // Inicialización
     // printf("Preparando el sistema...\n");
-    // symtab_init();
+    symtab_init();
 
     // printf("\nEstado inicial de la tabla de símbolos:\n");
     // symtab_print();
@@ -30,7 +31,7 @@ int main(int argc, char** argv) {
     // symtab_print();
 
     // Finalizacion
-    // symtab_terminate();
+    symtab_terminate();
 
     return 0;
 } 

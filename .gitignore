@@ -10,5 +10,8 @@ compile_commands.json
 # compilation 
 obj*
 bin*
+lex.yy.c
+interprete.tab.c
+interprete.tab.h
 
 ejemplo.txt
